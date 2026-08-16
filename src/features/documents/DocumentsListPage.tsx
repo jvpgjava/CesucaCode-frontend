@@ -1,14 +1,14 @@
-import { useMemo, useState } from 'react'
 import { FolderOpen, Search, Upload } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { useAuth } from '@/features/auth/useAuth'
 import { isAdmin, isCoordinator } from '@/shared/auth/roles'
 import { Button } from '@/shared/ui/Button'
+import { EmptyState } from '@/shared/ui/EmptyState'
 import { Input } from '@/shared/ui/Input'
 import { Spinner } from '@/shared/ui/Spinner'
-import { EmptyState } from '@/shared/ui/EmptyState'
-import { useDocumentsQuery } from './hooks/useDocuments'
 import { DocumentRow } from './components/DocumentRow'
 import { DocumentUploadDialog } from './DocumentUploadDialog'
+import { useDocumentsQuery } from './hooks/useDocuments'
 
 export function DocumentsListPage() {
   const { user } = useAuth()
@@ -27,7 +27,7 @@ export function DocumentsListPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-neutral-900">Materiais</h1>
+        <h1 className="font-semibold text-neutral-900 text-xl">Materiais</h1>
         {canManage && (
           <Button onClick={() => setUploadOpen(true)}>
             <Upload size={16} />
@@ -59,7 +59,7 @@ export function DocumentsListPage() {
       ) : (
         <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-medium text-neutral-500 uppercase">
+            <thead className="border-neutral-200 border-b bg-neutral-50 font-medium text-neutral-500 text-xs uppercase">
               <tr>
                 <th className="px-4 py-3">Título</th>
                 <th className="px-4 py-3">Curso</th>

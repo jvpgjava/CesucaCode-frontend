@@ -33,10 +33,10 @@ export function DialogContent({
       >
         <div className="mb-4 flex items-start justify-between">
           <div>
-            <RadixDialog.Title className="text-base font-semibold text-neutral-900">
+            <RadixDialog.Title className="font-semibold text-base text-neutral-900">
               {title}
             </RadixDialog.Title>
-            <RadixDialog.Description className="mt-1 text-sm text-neutral-500">
+            <RadixDialog.Description className="mt-1 text-neutral-500 text-sm">
               {description}
             </RadixDialog.Description>
           </div>

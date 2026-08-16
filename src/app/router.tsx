@@ -1,13 +1,13 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { AccountsListPage } from '@/features/accounts/AccountsListPage'
+import { ChangePasswordPage } from '@/features/auth/ChangePasswordPage'
+import { LoginPage } from '@/features/auth/LoginPage'
+import { DocumentDetailPage } from '@/features/documents/DocumentDetailPage'
+import { DocumentsListPage } from '@/features/documents/DocumentsListPage'
 import { ProtectedRoute } from '@/shared/auth/ProtectedRoute'
 import { RequirePasswordCurrent } from '@/shared/auth/RequirePasswordCurrent'
 import { RequireRole } from '@/shared/auth/RequireRole'
 import { AppShell } from '@/shared/layout/AppShell'
-import { LoginPage } from '@/features/auth/LoginPage'
-import { ChangePasswordPage } from '@/features/auth/ChangePasswordPage'
-import { DocumentsListPage } from '@/features/documents/DocumentsListPage'
-import { DocumentDetailPage } from '@/features/documents/DocumentDetailPage'
-import { AccountsListPage } from '@/features/accounts/AccountsListPage'
 
 export const router = createBrowserRouter([
   {

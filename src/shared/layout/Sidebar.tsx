@@ -1,5 +1,5 @@
-import { NavLink } from 'react-router-dom'
 import { FolderOpen, PanelLeftClose, PanelLeftOpen, Sparkle, Users } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
 import { useAuth } from '@/features/auth/useAuth'
 import { isAdmin } from '@/shared/auth/roles'
 import { cn } from '@/shared/lib/cn'
@@ -16,14 +16,14 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   return (
     <aside
       className={cn(
-        'flex h-screen flex-col border-r border-neutral-200 bg-white transition-[width] duration-150',
+        'flex h-screen flex-col border-neutral-200 border-r bg-white transition-[width] duration-150',
         collapsed ? 'w-16' : 'w-64',
       )}
     >
       <div className="flex items-center justify-between px-3 py-5">
         {!collapsed && (
-          <span className="text-brand-navy flex items-center gap-1.5 truncate text-base font-semibold">
-            <Sparkle size={18} className="fill-brand-orange text-brand-orange shrink-0" />
+          <span className="flex items-center gap-1.5 truncate font-semibold text-base text-brand-navy">
+            <Sparkle size={18} className="shrink-0 fill-brand-orange text-brand-orange" />
             CesucaCode
           </span>
         )}
@@ -47,7 +47,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
               title={collapsed ? label : undefined}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium',
+                  'flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm',
                   collapsed && 'justify-center px-0',
                   isActive ? 'bg-brand-navy text-white' : 'text-neutral-600 hover:bg-neutral-100',
                 )

@@ -1,5 +1,5 @@
-import { Badge } from '@/shared/ui/Badge'
 import type { DocumentStatus } from '@/api/types/documents'
+import { Badge } from '@/shared/ui/Badge'
 
 const statusConfig: Record<
   DocumentStatus,

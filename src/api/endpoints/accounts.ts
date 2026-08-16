@@ -1,6 +1,4 @@
 import { request } from '@/api/client'
-import type { Paginated } from '@/api/types/common'
-import type { User } from '@/api/types/auth'
 import type {
   BulkImportResult,
   CreateCoordinatorPayload,
@@ -9,6 +7,8 @@ import type {
   CreateStudentResponse,
   ResetPasswordResponse,
 } from '@/api/types/accounts'
+import type { User } from '@/api/types/auth'
+import type { Paginated } from '@/api/types/common'
 
 export function listAccounts(params: { search?: string; role?: string } = {}) {
   const query = new URLSearchParams()

@@ -1,17 +1,17 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Dialog, DialogContent } from '@/shared/ui/Dialog'
-import { Button } from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Input'
-import { Select } from '@/shared/ui/Select'
 import { ApiError } from '@/api/client'
 import { useCoursesQuery } from '@/shared/hooks/useCourses'
+import { Button } from '@/shared/ui/Button'
+import { Dialog, DialogContent } from '@/shared/ui/Dialog'
+import { Input } from '@/shared/ui/Input'
+import { Select } from '@/shared/ui/Select'
 import { useUploadDocumentMutation } from './hooks/useDocuments'
 import {
-  uploadDocumentSchema,
   type UploadDocumentFormInput,
   type UploadDocumentFormValues,
+  uploadDocumentSchema,
 } from './schemas'
 
 interface UploadErrorBody {
@@ -94,7 +94,7 @@ export function DocumentUploadDialog({
             {...register('file')}
           />
 
-          {formError && <p className="text-sm text-red-600">{formError}</p>}
+          {formError && <p className="text-red-600 text-sm">{formError}</p>}
 
           <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
             {isSubmitting ? 'Enviando...' : 'Enviar'}

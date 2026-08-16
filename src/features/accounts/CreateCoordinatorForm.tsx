@@ -1,13 +1,13 @@
-import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckCircle2, XCircle } from 'lucide-react'
-import { Button } from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Input'
+import { useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { ApiError } from '@/api/client'
 import { useCoursesQuery } from '@/shared/hooks/useCourses'
+import { Button } from '@/shared/ui/Button'
+import { Input } from '@/shared/ui/Input'
 import { useCreateCoordinatorMutation } from './hooks/useAccounts'
-import { createCoordinatorSchema, type CreateCoordinatorFormValues } from './schemas'
+import { type CreateCoordinatorFormValues, createCoordinatorSchema } from './schemas'
 
 interface CreateCoordinatorErrorBody {
   email?: string[]
@@ -60,7 +60,7 @@ export function CreateCoordinatorForm({ onSuccess }: { onSuccess: () => void }) 
         ) : (
           <XCircle className="text-amber-600" size={32} />
         )}
-        <p className="text-sm text-neutral-700">
+        <p className="text-neutral-700 text-sm">
           {result.emailSent
             ? 'Conta criada! A senha temporária foi enviada por e-mail.'
             : 'Conta criada, mas o envio do e-mail falhou. Use "Redefinir senha" na lista para tentar reenviar.'}
@@ -92,14 +92,14 @@ export function CreateCoordinatorForm({ onSuccess }: { onSuccess: () => void }) 
       />
 
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-neutral-700">Cursos coordenados</span>
+        <span className="font-medium text-neutral-700 text-sm">Cursos coordenados</span>
         <Controller
           control={control}
           name="coordinated_courses"
           render={({ field }) => (
             <div className="flex flex-col gap-2">
               {courses?.results.map((course) => (
-                <label key={course.id} className="flex items-center gap-2 text-sm text-neutral-700">
+                <label key={course.id} className="flex items-center gap-2 text-neutral-700 text-sm">
                   <input
                     type="checkbox"
                     checked={field.value.includes(course.code)}
@@ -117,11 +117,11 @@ export function CreateCoordinatorForm({ onSuccess }: { onSuccess: () => void }) 
           )}
         />
         {errors.coordinated_courses && (
-          <span className="text-xs text-red-600">{errors.coordinated_courses.message}</span>
+          <span className="text-red-600 text-xs">{errors.coordinated_courses.message}</span>
         )}
       </div>
 
-      {formError && <p className="text-sm text-red-600">{formError}</p>}
+      {formError && <p className="text-red-600 text-sm">{formError}</p>}
 
       <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
         {isSubmitting ? 'Criando...' : 'Criar coordenador'}

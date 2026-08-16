@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
 import { Download } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import type { Document } from '@/api/types/documents'
 import { formatDate } from '@/shared/lib/formatDate'
 import { DocumentStatusBadge } from './DocumentStatusBadge'

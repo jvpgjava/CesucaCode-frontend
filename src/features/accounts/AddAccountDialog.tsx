@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Dialog, DialogContent } from '@/shared/ui/Dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/Tabs'
-import { CreateStudentForm } from './CreateStudentForm'
 import { CreateCoordinatorForm } from './CreateCoordinatorForm'
+import { CreateStudentForm } from './CreateStudentForm'
 import { ImportStudentsForm } from './ImportStudentsForm'
 
 export function AddAccountDialog({

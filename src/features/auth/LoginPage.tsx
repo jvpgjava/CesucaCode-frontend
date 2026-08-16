@@ -1,14 +1,14 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { GraduationCap } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
-import { GraduationCap } from 'lucide-react'
-import { Button } from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Input'
-import { Card } from '@/shared/ui/Card'
 import { ApiError } from '@/api/client'
+import { Button } from '@/shared/ui/Button'
+import { Card } from '@/shared/ui/Card'
+import { Input } from '@/shared/ui/Input'
+import { type LoginFormValues, loginSchema } from './schemas'
 import { useAuth } from './useAuth'
-import { loginSchema, type LoginFormValues } from './schemas'
 
 interface LoginErrorBody {
   non_field_errors?: string[]
@@ -45,11 +45,11 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
-      <Card className="border-t-brand-orange w-full max-w-sm border-t-4">
+      <Card className="w-full max-w-sm border-t-4 border-t-brand-orange">
         <div className="mb-6 flex flex-col items-center gap-2 text-center">
           <GraduationCap className="text-brand-navy" size={32} />
-          <h1 className="text-lg font-semibold text-neutral-900">Entrar no CesucaCode</h1>
-          <p className="text-sm text-neutral-500">Use seu e-mail institucional ou seu RGM.</p>
+          <h1 className="font-semibold text-lg text-neutral-900">Entrar no CesucaCode</h1>
+          <p className="text-neutral-500 text-sm">Use seu e-mail institucional ou seu RGM.</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -67,7 +67,7 @@ export function LoginPage() {
             {...register('password')}
           />
 
-          {formError && <p className="text-sm text-red-600">{formError}</p>}
+          {formError && <p className="text-red-600 text-sm">{formError}</p>}
 
           <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
             {isSubmitting ? 'Entrando...' : 'Entrar'}

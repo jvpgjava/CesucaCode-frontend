@@ -1,15 +1,15 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { KeyRound } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
-import { KeyRound } from 'lucide-react'
-import { Button } from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Input'
-import { Card } from '@/shared/ui/Card'
 import { ApiError } from '@/api/client'
 import { changePassword } from '@/api/endpoints/auth'
+import { Button } from '@/shared/ui/Button'
+import { Card } from '@/shared/ui/Card'
+import { Input } from '@/shared/ui/Input'
+import { type ChangePasswordFormValues, changePasswordSchema } from './schemas'
 import { useAuth } from './useAuth'
-import { changePasswordSchema, type ChangePasswordFormValues } from './schemas'
 
 interface ChangePasswordErrorBody {
   old_password?: string[]
@@ -47,11 +47,11 @@ export function ChangePasswordPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
-      <Card className="border-t-brand-orange w-full max-w-sm border-t-4">
+      <Card className="w-full max-w-sm border-t-4 border-t-brand-orange">
         <div className="mb-6 flex flex-col items-center gap-2 text-center">
           <KeyRound className="text-brand-navy" size={32} />
-          <h1 className="text-lg font-semibold text-neutral-900">Troque sua senha</h1>
-          <p className="text-sm text-neutral-500">
+          <h1 className="font-semibold text-lg text-neutral-900">Troque sua senha</h1>
+          <p className="text-neutral-500 text-sm">
             Essa é uma senha temporária. Defina uma nova antes de continuar.
           </p>
         </div>
@@ -79,7 +79,7 @@ export function ChangePasswordPage() {
             {...register('confirm_password')}
           />
 
-          {formError && <p className="text-sm text-red-600">{formError}</p>}
+          {formError && <p className="text-red-600 text-sm">{formError}</p>}
 
           <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
             {isSubmitting ? 'Salvando...' : 'Salvar nova senha'}

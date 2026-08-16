@@ -1,5 +1,5 @@
-import { type InputHTMLAttributes, forwardRef, useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
+import { forwardRef, type InputHTMLAttributes, useState } from 'react'
 import { cn } from '@/shared/lib/cn'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -16,7 +16,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="flex flex-col gap-1">
         {label && (
-          <label htmlFor={inputId} className="text-sm font-medium text-neutral-700">
+          <label htmlFor={inputId} className="font-medium text-neutral-700 text-sm">
             {label}
           </label>
         )}
@@ -27,7 +27,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             name={name}
             type={isPassword && visible ? 'text' : type}
             className={cn(
-              'focus:border-brand-navy focus:ring-brand-navy w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:ring-1',
+              'w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-brand-navy focus:ring-1 focus:ring-brand-navy',
               isPassword && 'pr-9',
               error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
               className,
@@ -46,7 +46,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </button>
           )}
         </div>
-        {error && <span className="text-xs text-red-600">{error}</span>}
+        {error && <span className="text-red-600 text-xs">{error}</span>}
       </div>
     )
   },

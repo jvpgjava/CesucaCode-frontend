@@ -1,6 +1,6 @@
 import { request } from '@/api/client'
-import type { Paginated } from '@/api/types/common'
 import type { Course, LoginResponse, User } from '@/api/types/auth'
+import type { Paginated } from '@/api/types/common'
 
 export function login(identifier: string, password: string) {
   return request<LoginResponse>('/api/auth/login/', {

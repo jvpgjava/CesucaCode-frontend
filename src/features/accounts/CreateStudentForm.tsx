@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckCircle2, XCircle } from 'lucide-react'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { ApiError } from '@/api/client'
+import { useCoursesQuery } from '@/shared/hooks/useCourses'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
 import { Select } from '@/shared/ui/Select'
-import { ApiError } from '@/api/client'
-import { useCoursesQuery } from '@/shared/hooks/useCourses'
 import { useCreateStudentMutation } from './hooks/useAccounts'
-import { createStudentSchema, type CreateStudentFormValues } from './schemas'
+import { type CreateStudentFormValues, createStudentSchema } from './schemas'
 
 interface CreateStudentErrorBody {
   email?: string[]
@@ -59,7 +59,7 @@ export function CreateStudentForm({ onSuccess }: { onSuccess: () => void }) {
         ) : (
           <XCircle className="text-amber-600" size={32} />
         )}
-        <p className="text-sm text-neutral-700">
+        <p className="text-neutral-700 text-sm">
           {result.emailSent
             ? 'Conta criada! A senha temporária foi enviada por e-mail.'
             : 'Conta criada, mas o envio do e-mail falhou. Use "Redefinir senha" na lista para tentar reenviar.'}
@@ -101,7 +101,7 @@ export function CreateStudentForm({ onSuccess }: { onSuccess: () => void }) {
         ))}
       </Select>
 
-      {formError && <p className="text-sm text-red-600">{formError}</p>}
+      {formError && <p className="text-red-600 text-sm">{formError}</p>}
 
       <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
         {isSubmitting ? 'Criando...' : 'Criar aluno'}

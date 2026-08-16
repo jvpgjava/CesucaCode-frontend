@@ -34,7 +34,7 @@ export function DropdownMenuItem({ className, ...props }: RadixDropdownMenu.Drop
   return (
     <RadixDropdownMenu.Item
       className={cn(
-        'flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 outline-none data-[highlighted]:bg-neutral-100',
+        'flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-neutral-700 text-sm outline-none data-[highlighted]:bg-neutral-100',
         className,
       )}
       {...props}

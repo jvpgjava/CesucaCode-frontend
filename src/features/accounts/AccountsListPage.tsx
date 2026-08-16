@@ -1,16 +1,16 @@
-import { useState } from 'react'
 import { Plus, Search, Users } from 'lucide-react'
+import { useState } from 'react'
+import type { Role } from '@/api/types/auth'
+import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
+import { formatDate } from '@/shared/lib/formatDate'
+import { Badge } from '@/shared/ui/Badge'
 import { Button } from '@/shared/ui/Button'
+import { EmptyState } from '@/shared/ui/EmptyState'
 import { Input } from '@/shared/ui/Input'
 import { Select } from '@/shared/ui/Select'
 import { Spinner } from '@/shared/ui/Spinner'
-import { EmptyState } from '@/shared/ui/EmptyState'
-import { Badge } from '@/shared/ui/Badge'
-import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
-import { formatDate } from '@/shared/lib/formatDate'
-import type { Role } from '@/api/types/auth'
-import { useAccountsQuery } from './hooks/useAccounts'
 import { AddAccountDialog } from './AddAccountDialog'
+import { useAccountsQuery } from './hooks/useAccounts'
 import { ResetPasswordButton } from './ResetPasswordButton'
 
 const roleLabels: Record<Role, string> = {
@@ -35,7 +35,7 @@ export function AccountsListPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-neutral-900">Contas</h1>
+        <h1 className="font-semibold text-neutral-900 text-xl">Contas</h1>
         <Button onClick={() => setAddOpen(true)}>
           <Plus size={16} />
           Adicionar
@@ -72,7 +72,7 @@ export function AccountsListPage() {
       ) : (
         <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-medium text-neutral-500 uppercase">
+            <thead className="border-neutral-200 border-b bg-neutral-50 font-medium text-neutral-500 text-xs uppercase">
               <tr>
                 <th className="px-4 py-3">Nome</th>
                 <th className="px-4 py-3">E-mail / RGM</th>

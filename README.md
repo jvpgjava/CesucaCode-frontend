@@ -11,6 +11,7 @@ Cesuca, consumindo a API do
 - **TanStack Query v5** — cache e chamadas à API
 - **React Hook Form + Zod** — formulários e validação
 - **Tailwind CSS 4** — estilo
+- **Biome** — lint e format (substitui ESLint + Prettier)
 - **Radix UI** — só nos componentes onde acessibilidade é genuinamente
   difícil de fazer à mão (Dialog, DropdownMenu, Tabs); o resto é Tailwind
   puro, sem biblioteca de componentes completa
@@ -73,8 +74,8 @@ Só o passo 4 (`npm run dev`) — os passos 1-3 são de configuração inicial.
 | `npm run dev` | Sobe o servidor de desenvolvimento (porta 5173) |
 | `npm run build` | Checa os tipos e gera o build de produção em `dist/` |
 | `npm run preview` | Serve o build de produção localmente, pra testar antes de publicar |
-| `npm run lint` | Roda o ESLint |
-| `npm run format` | Formata o código com Prettier |
+| `npm run lint` | Roda o Biome (lint + format check + imports) |
+| `npm run format` | Aplica correções do Biome (format, lint safe, organize imports) |
 
 ## Arquitetura do projeto
 

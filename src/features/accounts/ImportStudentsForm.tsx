@@ -1,16 +1,16 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { ApiError } from '@/api/client'
+import type { BulkImportResult } from '@/api/types/accounts'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
-import { ApiError } from '@/api/client'
 import { useImportStudentsMutation } from './hooks/useAccounts'
 import {
-  importStudentsSchema,
   type ImportStudentsFormInput,
   type ImportStudentsFormValues,
+  importStudentsSchema,
 } from './schemas'
-import type { BulkImportResult } from '@/api/types/accounts'
 
 export function ImportStudentsForm({ onSuccess }: { onSuccess: () => void }) {
   const importMutation = useImportStudentsMutation()
@@ -44,7 +44,7 @@ export function ImportStudentsForm({ onSuccess }: { onSuccess: () => void }) {
   if (result) {
     return (
       <div className="flex flex-col gap-3">
-        <p className="text-sm text-neutral-700">
+        <p className="text-neutral-700 text-sm">
           {result.created_count} conta(s) criada(s), {result.failed_count} com erro de validação
           {result.email_failures_count > 0 &&
             `, ${result.email_failures_count} com falha no envio do e-mail`}
@@ -99,11 +99,11 @@ export function ImportStudentsForm({ onSuccess }: { onSuccess: () => void }) {
         error={errors.file?.message}
         {...register('file')}
       />
-      <p className="text-xs text-neutral-500">
+      <p className="text-neutral-500 text-xs">
         Colunas: full_name, rgm, email, course (nickname é opcional).
       </p>
 
-      {formError && <p className="text-sm text-red-600">{formError}</p>}
+      {formError && <p className="text-red-600 text-sm">{formError}</p>}
 
       <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
         {isSubmitting ? 'Importando...' : 'Importar'}

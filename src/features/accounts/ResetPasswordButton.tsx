@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { KeyRound } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/shared/ui/Button'
 import { Dialog, DialogContent } from '@/shared/ui/Dialog'
 import { useResetPasswordMutation } from './hooks/useAccounts'

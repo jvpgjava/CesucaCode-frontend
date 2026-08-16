@@ -1,4 +1,4 @@
-import { type SelectHTMLAttributes, forwardRef } from 'react'
+import { forwardRef, type SelectHTMLAttributes } from 'react'
 import { cn } from '@/shared/lib/cn'
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
@@ -12,7 +12,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="flex flex-col gap-1">
         {label && (
-          <label htmlFor={selectId} className="text-sm font-medium text-neutral-700">
+          <label htmlFor={selectId} className="font-medium text-neutral-700 text-sm">
             {label}
           </label>
         )}
@@ -21,7 +21,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           id={selectId}
           name={name}
           className={cn(
-            'focus:border-brand-navy focus:ring-brand-navy rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:ring-1',
+            'rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-navy focus:ring-1 focus:ring-brand-navy',
             error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
             className,
           )}
@@ -29,7 +29,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         >
           {children}
         </select>
-        {error && <span className="text-xs text-red-600">{error}</span>}
+        {error && <span className="text-red-600 text-xs">{error}</span>}
       </div>
     )
   },
