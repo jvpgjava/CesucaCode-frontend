@@ -123,7 +123,7 @@ Os mesmos três papéis do backend, refletidos na interface:
 | Papel | Vê "Materiais" | Vê "Contas" | Gerencia materiais |
 |---|---|---|---|
 | **CSAdmin** | Sim, todos | Sim | Sim, qualquer curso |
-| **CSCoordinator** | Sim, todos | Não | Só dos cursos que coordena |
+| **CSCoordinator** | Sim, só dos cursos que coordena | Não | Só dos cursos que coordena |
 | **CSStudent** | Sim, só do próprio curso | Não | Não |
 
 As checagens de papel no frontend (esconder botão, bloquear rota) são só
