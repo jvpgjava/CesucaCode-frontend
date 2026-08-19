@@ -89,16 +89,17 @@ src/
                            troca de senha obrigatória)
     providers.tsx          QueryClientProvider + AuthProvider
   api/
-    client.ts              fetch com header de auth e refresh automático
-                            de token no 401 (sem duplicar refresh em
-                            chamadas paralelas)
-    endpoints/              Uma função por chamada de API (auth, documents,
-                            accounts), sem lógica de UI
+    client.ts              fetch com header de auth, refresh automático
+                            de token no 401 e streamEvents (SSE) para chat
+    endpoints/              Uma função por chamada de API (auth, conversations,
+                            documents, accounts), sem lógica de UI
     types/                  Tipos TypeScript espelhando os serializers do
                             backend
   features/
     auth/                   Login, troca de senha obrigatória, contexto de
                             autenticação
+    conversations/          Chat com RAG: lista/cria/exclui conversas,
+                            envio com resposta streamed (SSE)
     documents/              Materiais didáticos: listar, enviar, detalhe,
                             chunks extraídos
     accounts/               Contas (CSAdmin): listar, criar aluno/
@@ -106,7 +107,8 @@ src/
   shared/
     ui/                     Componentes de interface reaproveitáveis
                             (Button, Input, Select, Dialog, Tabs, ...)
-    layout/                 Sidebar, menu do usuário, shell da aplicação
+    layout/                 Sidebar (nav + histórico de conversas), menu do
+                            usuário, shell da aplicação
     auth/                   Guards de rota (autenticado, papel, senha em
                             dia) — feitos pra UX, quem garante permissão de
                             verdade é sempre o backend
@@ -120,16 +122,35 @@ src/
 
 Os mesmos três papéis do backend, refletidos na interface:
 
-| Papel | Vê "Materiais" | Vê "Contas" | Gerencia materiais |
-|---|---|---|---|
-| **CSAdmin** | Sim, todos | Sim | Sim, qualquer curso |
-| **CSCoordinator** | Sim, só dos cursos que coordena | Não | Só dos cursos que coordena |
-| **CSStudent** | Sim, só do próprio curso | Não | Não |
+| Papel | Vê "Chat" | Vê "Materiais" | Vê "Contas" | Gerencia materiais |
+|---|---|---|---|---|
+| **CSAdmin** | Sim | Sim, todos | Sim | Sim, qualquer curso |
+| **CSCoordinator** | Sim | Sim, só dos cursos que coordena | Não | Só dos cursos que coordena |
+| **CSStudent** | Sim | Sim, só do próprio curso | Não | Não |
+
+O contexto RAG do chat respeita o mesmo escopo de materiais que cada papel
+pode ver na API — aluno só “consulta” materiais do próprio curso; coordenador,
+dos cursos que coordena; admin, todos.
 
 As checagens de papel no frontend (esconder botão, bloquear rota) são só
 conveniência de navegação — a autorização de verdade é sempre imposta pelo
 backend, então mesmo que alguém force uma URL manualmente, a API já
 recusa a ação.
+
+## Chat com RAG
+
+Após login, a rota padrão é **`/chat`**. A sidebar lista conversas anteriores;
+“Nova conversa” cria um registro vazio e navega para `/chat/:id`.
+
+O envio de mensagem usa **SSE** (`POST /api/conversations/{id}/messages/send/`)
+— a resposta aparece pedaço a pedaço, como em assistentes conversacionais.
+O backend busca chunks relevantes nos materiais visíveis ao usuário e
+responde com base neles (persona **S.O.F.I.**).
+
+**Pré-requisitos no backend:** chaves de LLM e embedding configuradas no
+`.env` dele, e materiais com `status=ready` e embeddings gerados. Sem
+material processado, o chat ainda funciona, mas a assistente avisa que não
+há contexto suficiente.
 
 ## Login e troca de senha obrigatória
 
@@ -155,3 +176,8 @@ provavelmente o backend não está rodando ou está em outra porta; confira
 **Sessão caindo sozinha depois de um tempo** — o token de acesso dura 2h e
 o de refresh 7 dias (configurado no backend); depois disso é esperado
 precisar logar de novo.
+
+**Chat não responde ou erro ao enviar mensagem** — confira se o backend tem
+chaves de IA válidas (`LLM_*`, `EMBEDDING_*`) e se existem materiais
+processados. Veja logs do backend (`docker compose logs -f backend` ou
+terminal do `runserver`).
