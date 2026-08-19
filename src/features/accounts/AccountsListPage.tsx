@@ -33,7 +33,7 @@ export function AccountsListPage() {
   const accounts = data?.results ?? []
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 p-8">
       <div className="flex items-center justify-between">
         <h1 className="font-semibold text-neutral-900 text-xl">Contas</h1>
         <Button onClick={() => setAddOpen(true)}>

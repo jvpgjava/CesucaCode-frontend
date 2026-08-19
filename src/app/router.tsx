@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AccountsListPage } from '@/features/accounts/AccountsListPage'
 import { ChangePasswordPage } from '@/features/auth/ChangePasswordPage'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { ChatPage } from '@/features/conversations/ChatPage'
 import { DocumentDetailPage } from '@/features/documents/DocumentDetailPage'
 import { DocumentsListPage } from '@/features/documents/DocumentsListPage'
 import { ProtectedRoute } from '@/shared/auth/ProtectedRoute'
@@ -29,7 +30,15 @@ export const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <Navigate to="/materiais" replace />,
+                element: <Navigate to="/chat" replace />,
+              },
+              {
+                path: '/chat',
+                element: <ChatPage />,
+              },
+              {
+                path: '/chat/:id',
+                element: <ChatPage />,
               },
               {
                 path: '/materiais',

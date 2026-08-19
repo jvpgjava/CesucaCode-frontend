@@ -31,18 +31,18 @@ export function DocumentDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-16">
+      <div className="flex justify-center p-8">
         <Spinner size={28} />
       </div>
     )
   }
 
   if (!document) {
-    return <p className="text-neutral-500">Material não encontrado.</p>
+    return <p className="p-8 text-neutral-500">Material não encontrado.</p>
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 p-8">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="font-semibold text-neutral-900 text-xl">{document.title}</h1>

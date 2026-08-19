@@ -128,3 +128,80 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   return (await safeJson(response)) as T
 }
+
+interface SseEvent {
+  event: string
+  data: string
+}
+
+async function openStream(path: string, body: unknown, isRetry: boolean): Promise<Response> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`
+  }
+
+  const response = await fetch(`${env.apiBaseUrl}${path}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  })
+
+  if (response.status === 401 && !isRetry) {
+    try {
+      refreshPromise ??= refreshAccessToken().finally(() => {
+        refreshPromise = null
+      })
+      await refreshPromise
+    } catch {
+      clearTokens()
+      onUnauthorized?.()
+      throw new ApiError(401, null, 'Sessão expirada.')
+    }
+    return openStream(path, body, true)
+  }
+
+  if (!response.ok || !response.body) {
+    throw new ApiError(response.status, await safeJson(response))
+  }
+
+  return response
+}
+
+// Consome uma resposta Server-Sent Events (text/event-stream) via fetch — a API
+// EventSource nativa só suporta GET com cookies, não POST com Bearer token.
+export async function* streamEvents(path: string, body: unknown): AsyncGenerator<SseEvent> {
+  const response = await openStream(path, body, false)
+  if (!response.body) {
+    throw new ApiError(response.status, null)
+  }
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+
+    let boundary = buffer.indexOf('\n\n')
+    while (boundary !== -1) {
+      const rawEvent = buffer.slice(0, boundary)
+      buffer = buffer.slice(boundary + 2)
+
+      let eventName = 'message'
+      let data = ''
+      for (const line of rawEvent.split('\n')) {
+        if (line.startsWith('event:')) {
+          eventName = line.slice(6).trim()
+        } else if (line.startsWith('data:')) {
+          data += line.slice(5).trim()
+        }
+      }
+      if (data) {
+        yield { event: eventName, data }
+      }
+
+      boundary = buffer.indexOf('\n\n')
+    }
+  }
+}

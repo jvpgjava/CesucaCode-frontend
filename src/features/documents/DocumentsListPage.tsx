@@ -25,7 +25,7 @@ export function DocumentsListPage() {
   }, [data, search])
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 p-8">
       <div className="flex items-center justify-between">
         <h1 className="font-semibold text-neutral-900 text-xl">Materiais</h1>
         {canManage && (
