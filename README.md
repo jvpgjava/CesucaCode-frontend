@@ -63,6 +63,10 @@ npm run dev
 Acesse **http://localhost:5173**. Use um usuário CSAdmin/CSCoordinator/
 CSStudent já existente no backend pra logar (login único: e-mail ou RGM).
 
+Para subir frontend, API e Postgres juntos via Docker, use o
+`docker compose up --build` na raiz do hub CesucaCode. O `Dockerfile` deste
+repositório é o do Vite em modo desenvolvimento.
+
 ## Rodando no dia a dia
 
 Só o passo 4 (`npm run dev`) — os passos 1-3 são de configuração inicial.
