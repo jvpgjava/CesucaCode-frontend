@@ -4,8 +4,14 @@ import { EmptyState } from '@/shared/ui/EmptyState'
 import { Spinner } from '@/shared/ui/Spinner'
 import { useChunksQuery } from './hooks/useDocuments'
 
-export function DocumentChunksPanel({ documentId }: { documentId: number }) {
-  const { data, isLoading } = useChunksQuery(documentId)
+export function DocumentChunksPanel({
+  documentId,
+  isDocumentProcessing,
+}: {
+  documentId: number
+  isDocumentProcessing?: boolean
+}) {
+  const { data, isLoading } = useChunksQuery(documentId, isDocumentProcessing)
 
   if (isLoading) {
     return (

@@ -137,6 +137,17 @@ conveniência de navegação — a autorização de verdade é sempre imposta pe
 backend, então mesmo que alguém force uma URL manualmente, a API já
 recusa a ação.
 
+## Materiais didáticos
+
+Upload de PDF/DOCX/PPTX/TXT processa em **background** no backend (extração
+via Docling, chunking, embeddings) — a resposta do envio já volta com
+status `"processing"`, não `"ready"`. A lista, o detalhe e o painel de
+trechos extraídos fazem polling automático (`refetchInterval` do TanStack
+Query) enquanto o material estiver `"processing"`, então o status e os
+chunks aparecem sozinhos assim que o processamento termina, sem precisar
+recarregar a página. Um PDF real leva tipicamente ~40-60s até ficar
+`"ready"`.
+
 ## Chat com RAG
 
 Após login, a rota padrão é **`/chat`**. A sidebar lista conversas anteriores;
@@ -181,3 +192,8 @@ precisar logar de novo.
 chaves de IA válidas (`LLM_*`, `EMBEDDING_*`) e se existem materiais
 processados. Veja logs do backend (`docker compose logs -f backend` ou
 terminal do `runserver`).
+
+**Material fica preso em "Processando" pra sempre** — o processamento roda
+em background no processo do backend (não é uma fila durável); se o
+backend reiniciar no meio de um upload, aquele job se perde. Solução: abra
+o material e clique em "Reprocessar".

@@ -81,7 +81,10 @@ export function DocumentDetailPage() {
         </Button>
       </div>
 
-      <DocumentChunksPanel documentId={documentId} />
+      <DocumentChunksPanel
+        documentId={documentId}
+        isDocumentProcessing={document.status === 'processing'}
+      />
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent
