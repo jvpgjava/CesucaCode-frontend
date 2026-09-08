@@ -5,6 +5,7 @@ import { isAdmin, isCoordinator } from '@/shared/auth/roles'
 import { Button } from '@/shared/ui/Button'
 import { EmptyState } from '@/shared/ui/EmptyState'
 import { Input } from '@/shared/ui/Input'
+import { Pagination } from '@/shared/ui/Pagination'
 import { Spinner } from '@/shared/ui/Spinner'
 import { DocumentRow } from './components/DocumentRow'
 import { DocumentUploadDialog } from './DocumentUploadDialog'
@@ -13,10 +14,14 @@ import { useDocumentsQuery } from './hooks/useDocuments'
 export function DocumentsListPage() {
   const { user } = useAuth()
   const canManage = isAdmin(user) || isCoordinator(user)
-  const { data, isLoading } = useDocumentsQuery()
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
   const [uploadOpen, setUploadOpen] = useState(false)
+  const { data, isLoading } = useDocumentsQuery(page)
 
+  // Busca filtra só o que já está carregado (não existe `?search=` nesse
+  // endpoint) — por isso volta pra página 1 quando o termo muda, senão o
+  // filtro pode não encontrar nada numa página que não é mais a atual.
   const documents = useMemo(() => {
     const results = data?.results ?? []
     if (!search.trim()) return results
@@ -41,7 +46,10 @@ export function DocumentsListPage() {
         <Input
           placeholder="Buscar por título..."
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => {
+            setSearch(event.target.value)
+            setPage(1)
+          }}
           className="pl-9"
         />
       </div>
@@ -76,6 +84,16 @@ export function DocumentsListPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {data && !search.trim() && (
+        <Pagination
+          page={page}
+          count={data.count}
+          hasNext={data.next !== null}
+          hasPrevious={data.previous !== null}
+          onPageChange={setPage}
+        />
       )}
 
       {canManage && <DocumentUploadDialog open={uploadOpen} onOpenChange={setUploadOpen} />}

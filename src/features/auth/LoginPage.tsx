@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { GraduationCap } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -46,9 +45,8 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
       <Card className="w-full max-w-sm border-t-4 border-t-brand-orange">
-        <div className="mb-6 flex flex-col items-center gap-2 text-center">
-          <GraduationCap className="text-brand-navy" size={32} />
-          <h1 className="font-semibold text-lg text-neutral-900">Entrar no CesucaCode</h1>
+        <div className="mb-6 flex flex-col items-center gap-3 text-center">
+          <img src="/sofia-logo-full.png" alt="S.O.F.I.A" className="w-full max-w-[280px]" />
           <p className="text-neutral-500 text-sm">Use seu e-mail institucional ou seu RGM.</p>
         </div>
 

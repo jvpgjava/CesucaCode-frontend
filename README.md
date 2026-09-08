@@ -148,15 +148,22 @@ chunks aparecem sozinhos assim que o processamento termina, sem precisar
 recarregar a página. Um PDF real leva tipicamente ~40-60s até ficar
 `"ready"`.
 
+Título e curso dá pra editar depois do envio (botão "Editar" na tela de
+detalhe) — não reenvia o arquivo nem reprocessa os chunks, só metadados; pra
+isso existe o botão "Reprocessar" separado.
+
 ## Chat com RAG
 
 Após login, a rota padrão é **`/chat`**. A sidebar lista conversas anteriores;
-“Nova conversa” cria um registro vazio e navega para `/chat/:id`.
+“Nova conversa” cria um registro vazio e navega para `/chat/:id`. Passar o
+mouse sobre uma conversa revela ícones de renomear e excluir.
 
 O envio de mensagem usa **SSE** (`POST /api/conversations/{id}/messages/send/`)
 — a resposta aparece pedaço a pedaço, como em assistentes conversacionais.
 O backend busca chunks relevantes nos materiais visíveis ao usuário e
-responde com base neles (persona **S.O.F.I.**).
+responde com base neles (persona **S.O.F.I.**). A resposta do assistente é
+renderizada como **markdown** (`react-markdown` + `remark-gfm` — negrito,
+listas, links, tabelas); a mensagem do usuário fica como texto puro.
 
 **Pré-requisitos no backend:** chaves de LLM e embedding configuradas no
 `.env` dele, e materiais com `status=ready` e embeddings gerados. Sem
@@ -170,6 +177,25 @@ CSCoordinator) ou RGM (CSStudent), detectado automaticamente. Contas
 recém-criadas pelo CSAdmin vêm com `must_change_password: true` — nesse
 estado, o app bloqueia qualquer outra tela e força a passagem pela troca
 de senha antes de liberar o resto (ver `shared/auth/RequirePasswordCurrent.tsx`).
+
+## Contas e perfil
+
+Qualquer usuário pode editar o próprio apelido em "Editar perfil" (menu no
+canto inferior da sidebar) — os demais dados (nome, e-mail, RGM, curso,
+papel) são geridos pelo CSAdmin. Na tela "Contas", o CSAdmin edita
+apelido e ativa/desativa qualquer conta (aluno ou coordenador) pelo ícone
+de lápis — desativar bloqueia login sem apagar a conta, e aparece um badge
+"Desativada" na lista. Listas de contas e materiais são paginadas
+(`shared/ui/Pagination.tsx`) — passado o primeiro lote de resultados, use
+os botões Anterior/Próxima pra ver o resto.
+
+## Notificações (toast)
+
+Ações que podem falhar sem outro feedback visível (excluir conversa/
+material, reprocessar, salvar edições) mostram um toast de sucesso ou erro
+no canto inferior direito (`shared/ui/Toast.tsx`, `useToast()`). Erros de
+validação em formulários continuam aparecendo inline, perto do campo —
+toast é só para ações que não têm um formulário próprio pra mostrar o erro.
 
 ## Solução de problemas comuns
 

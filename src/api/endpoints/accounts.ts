@@ -10,10 +10,11 @@ import type {
 import type { User } from '@/api/types/auth'
 import type { Paginated } from '@/api/types/common'
 
-export function listAccounts(params: { search?: string; role?: string } = {}) {
+export function listAccounts(params: { search?: string; role?: string; page?: number } = {}) {
   const query = new URLSearchParams()
   if (params.search) query.set('search', params.search)
   if (params.role) query.set('role', params.role)
+  if (params.page && params.page > 1) query.set('page', String(params.page))
   const suffix = query.toString() ? `?${query.toString()}` : ''
   return request<Paginated<User>>(`/api/auth/accounts/${suffix}`)
 }
@@ -46,4 +47,8 @@ export function resetPassword(id: number) {
   return request<ResetPasswordResponse>(`/api/auth/accounts/${id}/reset-password/`, {
     method: 'POST',
   })
+}
+
+export function updateAccount(id: number, data: { nickname?: string; is_active?: boolean }) {
+  return request<User>(`/api/auth/accounts/${id}/`, { method: 'PATCH', body: data })
 }

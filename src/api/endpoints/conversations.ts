@@ -14,6 +14,13 @@ export function deleteConversation(id: number) {
   return request<void>(`/api/conversations/${id}/`, { method: 'DELETE' })
 }
 
+export function renameConversation(id: number, title: string) {
+  return request<Conversation>(`/api/conversations/${id}/`, {
+    method: 'PATCH',
+    body: { title },
+  })
+}
+
 export function getMessages(id: number) {
   return request<Message[]>(`/api/conversations/${id}/messages/`)
 }

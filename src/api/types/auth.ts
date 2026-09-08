@@ -15,6 +15,7 @@ export interface User {
   role: Role
   course: Course | null
   coordinated_courses: Course[]
+  is_active: boolean
   must_change_password: boolean
   created_at: string
 }

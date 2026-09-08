@@ -14,6 +14,10 @@ export function getMe() {
   return request<User>('/api/auth/me/')
 }
 
+export function updateMe(nickname: string) {
+  return request<User>('/api/auth/me/', { method: 'PATCH', body: { nickname } })
+}
+
 export function changePassword(oldPassword: string, newPassword: string) {
   return request<{ detail: string }>('/api/auth/change-password/', {
     method: 'POST',

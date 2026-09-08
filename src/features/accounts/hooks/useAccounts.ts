@@ -5,13 +5,15 @@ import {
   importStudents,
   listAccounts,
   resetPassword,
+  updateAccount,
 } from '@/api/endpoints/accounts'
+import { useToast } from '@/shared/ui/Toast'
 
 const accountsListBaseKey = ['accounts', 'list'] as const
-const accountsListKey = (params: { search?: string; role?: string }) =>
+const accountsListKey = (params: { search?: string; role?: string; page?: number }) =>
   [...accountsListBaseKey, params] as const
 
-export function useAccountsQuery(params: { search?: string; role?: string } = {}) {
+export function useAccountsQuery(params: { search?: string; role?: string; page?: number } = {}) {
   return useQuery({
     queryKey: accountsListKey(params),
     queryFn: () => listAccounts(params),
@@ -51,5 +53,20 @@ export function useCreateCoordinatorMutation() {
 export function useResetPasswordMutation() {
   return useMutation({
     mutationFn: resetPassword,
+  })
+}
+
+export function useUpdateAccountMutation() {
+  const queryClient = useQueryClient()
+  const toast = useToast()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: { nickname?: string; is_active?: boolean } }) =>
+      updateAccount(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: accountsListBaseKey })
+    },
+    onError: () => {
+      toast.error('Não foi possível atualizar a conta. Tente novamente.')
+    },
   })
 }

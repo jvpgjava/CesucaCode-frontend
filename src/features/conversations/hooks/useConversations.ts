@@ -4,7 +4,9 @@ import {
   deleteConversation,
   getMessages,
   listConversations,
+  renameConversation,
 } from '@/api/endpoints/conversations'
+import { useToast } from '@/shared/ui/Toast'
 
 const conversationsListKey = ['conversations', 'list'] as const
 const messagesKey = (id: number) => ['conversations', 'detail', id, 'messages'] as const
@@ -31,12 +33,30 @@ export function useCreateConversationMutation() {
   })
 }
 
+export function useRenameConversationMutation() {
+  const queryClient = useQueryClient()
+  const toast = useToast()
+  return useMutation({
+    mutationFn: ({ id, title }: { id: number; title: string }) => renameConversation(id, title),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: conversationsListKey })
+    },
+    onError: () => {
+      toast.error('Não foi possível renomear a conversa. Tente novamente.')
+    },
+  })
+}
+
 export function useDeleteConversationMutation() {
   const queryClient = useQueryClient()
+  const toast = useToast()
   return useMutation({
     mutationFn: deleteConversation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: conversationsListKey })
+    },
+    onError: () => {
+      toast.error('Não foi possível excluir a conversa. Tente novamente.')
     },
   })
 }

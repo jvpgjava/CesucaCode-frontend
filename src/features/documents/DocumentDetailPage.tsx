@@ -1,4 +1,4 @@
-import { Download, RefreshCw, Trash2 } from 'lucide-react'
+import { Download, Pencil, RefreshCw, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { formatDate } from '@/shared/lib/formatDate'
@@ -8,6 +8,7 @@ import { Dialog, DialogContent } from '@/shared/ui/Dialog'
 import { Spinner } from '@/shared/ui/Spinner'
 import { DocumentStatusBadge } from './components/DocumentStatusBadge'
 import { DocumentChunksPanel } from './DocumentChunksPanel'
+import { DocumentEditDialog } from './DocumentEditDialog'
 import {
   useDeleteDocumentMutation,
   useDocumentQuery,
@@ -19,13 +20,18 @@ export function DocumentDetailPage() {
   const documentId = Number(id)
   const navigate = useNavigate()
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
 
   const { data: document, isLoading } = useDocumentQuery(documentId)
   const deleteMutation = useDeleteDocumentMutation()
   const reprocessMutation = useReprocessDocumentMutation(documentId)
 
   const handleDelete = async () => {
-    await deleteMutation.mutateAsync(documentId)
+    try {
+      await deleteMutation.mutateAsync(documentId)
+    } catch {
+      return
+    }
     navigate('/materiais', { replace: true })
   }
 
@@ -67,6 +73,10 @@ export function DocumentDetailPage() {
             Baixar arquivo
           </Button>
         </a>
+        <Button variant="secondary" onClick={() => setEditOpen(true)}>
+          <Pencil size={16} />
+          Editar
+        </Button>
         <Button
           variant="secondary"
           onClick={() => reprocessMutation.mutate()}
@@ -101,6 +111,8 @@ export function DocumentDetailPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <DocumentEditDialog document={document} open={editOpen} onOpenChange={setEditOpen} />
     </div>
   )
 }

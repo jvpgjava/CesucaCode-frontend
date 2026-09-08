@@ -1,19 +1,24 @@
 import {
+  Check,
   FolderOpen,
   MessageCircle,
   PanelLeftClose,
   PanelLeftOpen,
+  Pencil,
   Plus,
-  Sparkle,
   Trash2,
   Users,
+  X,
 } from 'lucide-react'
+import { useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import type { Conversation } from '@/api/types/conversations'
 import { useAuth } from '@/features/auth/useAuth'
 import {
   useConversationsQuery,
   useCreateConversationMutation,
   useDeleteConversationMutation,
+  useRenameConversationMutation,
 } from '@/features/conversations/hooks/useConversations'
 import { isAdmin } from '@/shared/auth/roles'
 import { cn } from '@/shared/lib/cn'
@@ -43,7 +48,11 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   }
 
   const handleDeleteConversation = async (id: number) => {
-    await deleteMutation.mutateAsync(id)
+    try {
+      await deleteMutation.mutateAsync(id)
+    } catch {
+      return
+    }
     if (id === activeConversationId) {
       navigate('/chat', { replace: true })
     }
@@ -58,9 +67,9 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
     >
       <div className="flex items-center justify-between px-3 py-5">
         {!collapsed && (
-          <span className="flex items-center gap-1.5 truncate font-semibold text-base text-brand-navy">
-            <Sparkle size={18} className="shrink-0 fill-brand-orange text-brand-orange" />
-            CesucaCode
+          <span className="flex items-center gap-2 truncate font-semibold text-base text-brand-navy">
+            <img src="/sofia-icon.png" alt="" className="h-6 w-6 shrink-0" />
+            S.O.F.I.A
           </span>
         )}
         <button
@@ -122,36 +131,15 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                     Conversas
                   </p>
                   <ul className="flex flex-col">
-                    {conversations.results.map((conversation) => {
-                      const isActive = conversation.id === activeConversationId
-                      return (
-                        <li key={conversation.id}>
-                          <div className="group flex items-center rounded-lg pr-1 hover:bg-neutral-100">
-                            <button
-                              type="button"
-                              onClick={() => navigate(`/chat/${conversation.id}`)}
-                              className={cn(
-                                'flex flex-1 items-center gap-2 overflow-hidden px-3 py-1.5 text-left text-sm',
-                                isActive ? 'font-medium text-brand-navy' : 'text-neutral-600',
-                              )}
-                            >
-                              <MessageCircle size={13} className="shrink-0 text-neutral-400" />
-                              <span className="block truncate">
-                                {conversation.title || 'Nova conversa'}
-                              </span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteConversation(conversation.id)}
-                              title="Excluir conversa"
-                              className="shrink-0 rounded p-1 text-neutral-400 opacity-0 hover:bg-neutral-200 hover:text-neutral-700 group-hover:opacity-100"
-                            >
-                              <Trash2 size={12} />
-                            </button>
-                          </div>
-                        </li>
-                      )
-                    })}
+                    {conversations.results.map((conversation) => (
+                      <ConversationListItem
+                        key={conversation.id}
+                        conversation={conversation}
+                        isActive={conversation.id === activeConversationId}
+                        onOpen={() => navigate(`/chat/${conversation.id}`)}
+                        onDelete={() => handleDeleteConversation(conversation.id)}
+                      />
+                    ))}
                   </ul>
                 </>
               )}
@@ -162,5 +150,108 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
 
       <UserMenu collapsed={collapsed} />
     </aside>
+  )
+}
+
+function ConversationListItem({
+  conversation,
+  isActive,
+  onOpen,
+  onDelete,
+}: {
+  conversation: Conversation
+  isActive: boolean
+  onOpen: () => void
+  onDelete: () => void
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [title, setTitle] = useState(conversation.title)
+  const renameMutation = useRenameConversationMutation()
+
+  const startEditing = () => {
+    setTitle(conversation.title)
+    setIsEditing(true)
+  }
+
+  const save = () => {
+    const trimmed = title.trim()
+    if (trimmed !== conversation.title) {
+      renameMutation.mutate({ id: conversation.id, title: trimmed })
+    }
+    setIsEditing(false)
+  }
+
+  if (isEditing) {
+    return (
+      <li>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault()
+            save()
+          }}
+          className="flex items-center gap-1 px-2 py-1"
+        >
+          <input
+            // biome-ignore lint/a11y/noAutofocus: campo só existe porque o usuário acabou de clicar em "renomear" — foco automático é o esperado aqui, não uma surpresa de carregamento de página
+            autoFocus
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') setIsEditing(false)
+            }}
+            className="min-w-0 flex-1 rounded border border-brand-navy px-2 py-1 text-sm outline-none"
+          />
+          <button
+            type="submit"
+            title="Salvar"
+            className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-200"
+          >
+            <Check size={13} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsEditing(false)}
+            title="Cancelar"
+            className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-200"
+          >
+            <X size={13} />
+          </button>
+        </form>
+      </li>
+    )
+  }
+
+  return (
+    <li>
+      <div className="group flex items-center rounded-lg pr-1 hover:bg-neutral-100">
+        <button
+          type="button"
+          onClick={onOpen}
+          className={cn(
+            'flex flex-1 items-center gap-2 overflow-hidden px-3 py-1.5 text-left text-sm',
+            isActive ? 'font-medium text-brand-navy' : 'text-neutral-600',
+          )}
+        >
+          <MessageCircle size={13} className="shrink-0 text-neutral-400" />
+          <span className="block truncate">{conversation.title || 'Nova conversa'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={startEditing}
+          title="Renomear conversa"
+          className="shrink-0 rounded p-1 text-neutral-400 opacity-0 hover:bg-neutral-200 hover:text-neutral-700 group-hover:opacity-100"
+        >
+          <Pencil size={12} />
+        </button>
+        <button
+          type="button"
+          onClick={onDelete}
+          title="Excluir conversa"
+          className="shrink-0 rounded p-1 text-neutral-400 opacity-0 hover:bg-neutral-200 hover:text-neutral-700 group-hover:opacity-100"
+        >
+          <Trash2 size={12} />
+        </button>
+      </div>
+    </li>
   )
 }

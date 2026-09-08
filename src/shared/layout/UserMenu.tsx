@@ -1,5 +1,7 @@
-import { ChevronsUpDown, LogOut } from 'lucide-react'
+import { ChevronsUpDown, LogOut, UserPen } from 'lucide-react'
+import { useState } from 'react'
 import type { Role } from '@/api/types/auth'
+import { EditProfileDialog } from '@/features/auth/EditProfileDialog'
 import { useAuth } from '@/features/auth/useAuth'
 import { cn } from '@/shared/lib/cn'
 import {
@@ -17,6 +19,7 @@ const roleLabels: Record<Role, string> = {
 
 export function UserMenu({ collapsed }: { collapsed: boolean }) {
   const { user, logout } = useAuth()
+  const [editOpen, setEditOpen] = useState(false)
 
   if (!user) {
     return null
@@ -50,12 +53,17 @@ export function UserMenu({ collapsed }: { collapsed: boolean }) {
           )}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
+          <DropdownMenuItem onSelect={() => setEditOpen(true)}>
+            <UserPen size={16} />
+            Editar perfil
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={logout} className="text-red-600">
             <LogOut size={16} />
             Sair
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <EditProfileDialog open={editOpen} onOpenChange={setEditOpen} />
     </div>
   )
 }

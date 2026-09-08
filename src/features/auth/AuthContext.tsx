@@ -1,6 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { clearTokens, hasTokens, setTokens, setUnauthorizedHandler } from '@/api/client'
-import { getMe, login as loginRequest } from '@/api/endpoints/auth'
+import { getMe, login as loginRequest, updateMe } from '@/api/endpoints/auth'
 import type { User } from '@/api/types/auth'
 import { AuthContext, type AuthStatus } from './context'
 
@@ -47,9 +47,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return me
   }, [])
 
+  const updateNickname = useCallback(async (nickname: string) => {
+    const me = await updateMe(nickname)
+    setUser(me)
+    return me
+  }, [])
+
   const value = useMemo(
-    () => ({ user, status, login, logout, refreshUser }),
-    [user, status, login, logout, refreshUser],
+    () => ({ user, status, login, logout, refreshUser, updateNickname }),
+    [user, status, login, logout, refreshUser, updateNickname],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
