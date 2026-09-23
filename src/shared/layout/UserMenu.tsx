@@ -1,8 +1,8 @@
 import { ChevronsUpDown, LogOut, UserPen } from 'lucide-react'
 import { useState } from 'react'
-import type { Role } from '@/api/types/auth'
 import { EditProfileDialog } from '@/features/auth/EditProfileDialog'
 import { useAuth } from '@/features/auth/useAuth'
+import { roleLabels } from '@/shared/auth/roles'
 import { cn } from '@/shared/lib/cn'
 import {
   DropdownMenu,
@@ -10,12 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/ui/DropdownMenu'
-
-const roleLabels: Record<Role, string> = {
-  cs_admin: 'CSAdmin',
-  cs_coordinator: 'CSCoordinator',
-  cs_student: 'CSStudent',
-}
 
 export function UserMenu({ collapsed }: { collapsed: boolean }) {
   const { user, logout } = useAuth()

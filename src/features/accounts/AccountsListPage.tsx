@@ -1,6 +1,6 @@
 import { Pencil, Plus, Search, Users } from 'lucide-react'
 import { useState } from 'react'
-import type { Role } from '@/api/types/auth'
+import { roleLabels } from '@/shared/auth/roles'
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
 import { formatDate } from '@/shared/lib/formatDate'
 import { Badge } from '@/shared/ui/Badge'
@@ -14,12 +14,6 @@ import { AccountEditDialog } from './AccountEditDialog'
 import { AddAccountDialog } from './AddAccountDialog'
 import { useAccountsQuery } from './hooks/useAccounts'
 import { ResetPasswordButton } from './ResetPasswordButton'
-
-const roleLabels: Record<Role, string> = {
-  cs_admin: 'CSAdmin',
-  cs_coordinator: 'CSCoordinator',
-  cs_student: 'CSStudent',
-}
 
 export function AccountsListPage() {
   const [search, setSearch] = useState('')
@@ -70,8 +64,8 @@ export function AccountsListPage() {
           className="max-w-[200px]"
         >
           <option value="">Todos os papéis</option>
-          <option value="cs_student">CSStudent</option>
-          <option value="cs_coordinator">CSCoordinator</option>
+          <option value="cs_student">Estudante</option>
+          <option value="cs_coordinator">Coordenador</option>
         </Select>
       </div>
 
@@ -82,7 +76,7 @@ export function AccountsListPage() {
       ) : accounts.length === 0 ? (
         <EmptyState icon={Users} title="Nenhuma conta encontrada" />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+        <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
           <table className="w-full text-left text-sm">
             <thead className="border-neutral-200 border-b bg-neutral-50 font-medium text-neutral-500 text-xs uppercase">
               <tr>
@@ -97,24 +91,27 @@ export function AccountsListPage() {
             <tbody className="divide-y divide-neutral-100">
               {accounts.map((account) => (
                 <tr key={account.id} className={!account.is_active ? 'opacity-60' : undefined}>
-                  <td className="px-4 py-3 font-medium text-neutral-900">
+                  <td className="px-4 py-3 align-middle font-medium text-neutral-900">
                     {account.nickname || account.full_name}
                   </td>
-                  <td className="px-4 py-3 text-neutral-600">{account.rgm ?? account.email}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 align-middle text-neutral-600">
+                    {account.rgm ?? account.email}
+                  </td>
+                  <td className="px-4 py-3 align-middle">
                     <div className="flex flex-wrap gap-1.5">
                       <Badge>{roleLabels[account.role]}</Badge>
                       {!account.is_active && <Badge tone="danger">Desativada</Badge>}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-neutral-600">
+                  <td className="px-4 py-3 align-middle text-neutral-600">
                     {account.role === 'cs_coordinator'
-                      ? account.coordinated_courses.map((c) => c.code.toUpperCase()).join(', ') ||
-                        '-'
-                      : (account.course?.code.toUpperCase() ?? '-')}
+                      ? account.coordinated_courses.map((c) => c.name).join(', ') || '-'
+                      : (account.course?.name ?? '-')}
                   </td>
-                  <td className="px-4 py-3 text-neutral-600">{formatDate(account.created_at)}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 align-middle text-neutral-600">
+                    {formatDate(account.created_at)}
+                  </td>
+                  <td className="px-4 py-3 align-middle">
                     <div className="flex items-center justify-end gap-2">
                       <button
                         type="button"

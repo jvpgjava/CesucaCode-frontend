@@ -43,7 +43,15 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
+    <div
+      className="flex min-h-screen items-center justify-center bg-brand-navy px-4"
+      style={{
+        backgroundImage: 'url(/cesuca-estrela.png)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '900px',
+        backgroundPosition: 'right -180px bottom -180px',
+      }}
+    >
       <Card className="w-full max-w-sm border-t-4 border-t-brand-orange">
         <div className="mb-6 flex flex-col items-center gap-3 text-center">
           <img src="/sofia-logo-full.png" alt="S.O.F.I.A" className="w-full max-w-[280px]" />

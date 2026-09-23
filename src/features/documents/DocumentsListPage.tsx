@@ -65,7 +65,7 @@ export function DocumentsListPage() {
           description={canManage ? 'Envie o primeiro material didático do curso.' : undefined}
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+        <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
           <table className="w-full text-left text-sm">
             <thead className="border-neutral-200 border-b bg-neutral-50 font-medium text-neutral-500 text-xs uppercase">
               <tr>

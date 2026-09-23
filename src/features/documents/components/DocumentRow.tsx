@@ -7,7 +7,7 @@ import { DocumentStatusBadge } from './DocumentStatusBadge'
 export function DocumentRow({ document, canManage }: { document: Document; canManage: boolean }) {
   return (
     <tr>
-      <td className="px-4 py-3 font-medium text-neutral-900">
+      <td className="px-4 py-3 align-middle font-medium text-neutral-900">
         {canManage ? (
           <Link to={`/materiais/${document.id}`} className="hover:underline">
             {document.title}
@@ -16,13 +16,13 @@ export function DocumentRow({ document, canManage }: { document: Document; canMa
           document.title
         )}
       </td>
-      <td className="px-4 py-3 text-neutral-600">{document.course.code.toUpperCase()}</td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-3 align-middle text-neutral-600">{document.course.name}</td>
+      <td className="px-4 py-3 align-middle">
         <DocumentStatusBadge status={document.status} />
       </td>
-      <td className="px-4 py-3 text-neutral-600">{document.uploaded_by_name}</td>
-      <td className="px-4 py-3 text-neutral-600">{formatDate(document.created_at)}</td>
-      <td className="px-4 py-3 text-right">
+      <td className="px-4 py-3 align-middle text-neutral-600">{document.uploaded_by_name}</td>
+      <td className="px-4 py-3 align-middle text-neutral-600">{formatDate(document.created_at)}</td>
+      <td className="px-4 py-3 align-middle text-right">
         <a
           href={document.file}
           target="_blank"

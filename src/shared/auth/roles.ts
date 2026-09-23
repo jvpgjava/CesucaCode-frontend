@@ -1,5 +1,11 @@
 import type { Role, User } from '@/api/types/auth'
 
+export const roleLabels: Record<Role, string> = {
+  cs_admin: 'Administrador',
+  cs_coordinator: 'Coordenador',
+  cs_student: 'Estudante',
+}
+
 export function isAdmin(user: User | null): boolean {
   return user?.role === 'cs_admin'
 }
