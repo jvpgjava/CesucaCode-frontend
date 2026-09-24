@@ -4,6 +4,7 @@ import { EditProfileDialog } from '@/features/auth/EditProfileDialog'
 import { useAuth } from '@/features/auth/useAuth'
 import { roleLabels } from '@/shared/auth/roles'
 import { cn } from '@/shared/lib/cn'
+import { AvatarCircle } from '@/shared/ui/AvatarCircle'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,14 +34,17 @@ export function UserMenu({ collapsed }: { collapsed: boolean }) {
           )}
         >
           {collapsed ? (
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-navy font-medium text-white text-xs">
-              {initial}
-            </span>
+            <AvatarCircle avatar={user.avatar} initial={initial} className="h-7 w-7 text-xs" />
           ) : (
             <>
-              <div className="flex flex-col overflow-hidden">
-                <span className="truncate font-medium text-neutral-900 text-sm">{displayName}</span>
-                <span className="truncate text-neutral-500 text-xs">{roleLabels[user.role]}</span>
+              <div className="flex min-w-0 items-center gap-2.5">
+                <AvatarCircle avatar={user.avatar} initial={initial} className="h-8 w-8 text-xs" />
+                <div className="flex flex-col overflow-hidden">
+                  <span className="truncate font-medium text-neutral-900 text-sm">
+                    {displayName}
+                  </span>
+                  <span className="truncate text-neutral-500 text-xs">{roleLabels[user.role]}</span>
+                </div>
               </div>
               <ChevronsUpDown size={16} className="shrink-0 text-neutral-400" />
             </>

@@ -47,15 +47,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return me
   }, [])
 
-  const updateNickname = useCallback(async (nickname: string) => {
-    const me = await updateMe(nickname)
+  const updateProfile = useCallback(async (data: { nickname?: string; avatar?: File }) => {
+    const me = await updateMe(data)
     setUser(me)
     return me
   }, [])
 
   const value = useMemo(
-    () => ({ user, status, login, logout, refreshUser, updateNickname }),
-    [user, status, login, logout, refreshUser, updateNickname],
+    () => ({ user, status, login, logout, refreshUser, updateProfile }),
+    [user, status, login, logout, refreshUser, updateProfile],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -14,8 +14,11 @@ export function getMe() {
   return request<User>('/api/auth/me/')
 }
 
-export function updateMe(nickname: string) {
-  return request<User>('/api/auth/me/', { method: 'PATCH', body: { nickname } })
+export function updateMe(data: { nickname?: string; avatar?: File }) {
+  const formData = new FormData()
+  if (data.nickname !== undefined) formData.append('nickname', data.nickname)
+  if (data.avatar) formData.append('avatar', data.avatar)
+  return request<User>('/api/auth/me/', { method: 'PATCH', body: formData, isFormData: true })
 }
 
 export function changePassword(oldPassword: string, newPassword: string) {

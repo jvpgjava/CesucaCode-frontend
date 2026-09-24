@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { roleLabels } from '@/shared/auth/roles'
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
 import { formatDate } from '@/shared/lib/formatDate'
+import { AvatarCircle } from '@/shared/ui/AvatarCircle'
 import { Badge } from '@/shared/ui/Badge'
 import { Button } from '@/shared/ui/Button'
 import { EmptyState } from '@/shared/ui/EmptyState'
@@ -92,7 +93,14 @@ export function AccountsListPage() {
               {accounts.map((account) => (
                 <tr key={account.id} className={!account.is_active ? 'opacity-60' : undefined}>
                   <td className="px-4 py-3 align-middle font-medium text-neutral-900">
-                    {account.nickname || account.full_name}
+                    <div className="flex items-center gap-2.5">
+                      <AvatarCircle
+                        avatar={account.avatar}
+                        initial={(account.nickname || account.full_name).charAt(0)}
+                        className="h-7 w-7 text-xs"
+                      />
+                      {account.nickname || account.full_name}
+                    </div>
                   </td>
                   <td className="px-4 py-3 align-middle text-neutral-600">
                     {account.rgm ?? account.email}

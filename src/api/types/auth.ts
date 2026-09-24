@@ -11,6 +11,7 @@ export interface User {
   email: string
   full_name: string
   nickname: string
+  avatar: string | null
   rgm: string | null
   role: Role
   course: Course | null
