@@ -161,9 +161,17 @@ mouse sobre uma conversa revela ícones de renomear e excluir.
 O envio de mensagem usa **SSE** (`POST /api/conversations/{id}/messages/send/`)
 — a resposta aparece pedaço a pedaço, como em assistentes conversacionais.
 O backend busca chunks relevantes nos materiais visíveis ao usuário e
-responde com base neles (persona **S.O.F.I.**). A resposta do assistente é
+responde com base neles (persona **S.O.F.I.A**). A resposta do assistente é
 renderizada como **markdown** (`react-markdown` + `remark-gfm` — negrito,
 listas, links, tabelas); a mensagem do usuário fica como texto puro.
+
+**Tela inicial e sugestões:** numa conversa nova (ou em `/chat`) aparecem
+sugestões prontas (`GET /api/conversations/suggestions/`) — grade curricular,
+disciplinas, materiais disponíveis e perguntas baseadas nos materiais mais
+recentes. Clicar numa sugestão cria a conversa e envia a mensagem (passada via
+`location.state.initialMessage`, enviada uma única vez). Cada resposta tem
+**👍/👎** (`PATCH .../messages/{id}/feedback/`) e o campo de texto exibe um
+aviso de que a IA pode errar.
 
 **Pré-requisitos no backend:** chaves de LLM e embedding configuradas no
 `.env` dele, e materiais com `status=ready` e embeddings gerados. Sem

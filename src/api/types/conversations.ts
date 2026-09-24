@@ -11,5 +11,6 @@ export interface Message {
   id: number
   role: MessageRole
   content: string
+  feedback: 1 | -1 | null
   created_at: string
 }

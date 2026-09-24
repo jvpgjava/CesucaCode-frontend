@@ -25,6 +25,21 @@ export function getMessages(id: number) {
   return request<Message[]>(`/api/conversations/${id}/messages/`)
 }
 
+export function getSuggestions() {
+  return request<{ suggestions: string[] }>('/api/conversations/suggestions/')
+}
+
+export function setMessageFeedback(
+  conversationId: number,
+  messageId: number,
+  rating: 1 | -1 | null,
+) {
+  return request<Message>(`/api/conversations/${conversationId}/messages/${messageId}/feedback/`, {
+    method: 'PATCH',
+    body: { rating },
+  })
+}
+
 export async function* sendMessage(conversationId: number, content: string) {
   for await (const { event, data } of streamEvents(
     `/api/conversations/${conversationId}/messages/send/`,

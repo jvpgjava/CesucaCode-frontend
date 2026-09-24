@@ -3,6 +3,7 @@ import {
   createConversation,
   deleteConversation,
   getMessages,
+  getSuggestions,
   listConversations,
   renameConversation,
 } from '@/api/endpoints/conversations'
@@ -20,6 +21,14 @@ export function useMessagesQuery(id: number | null) {
     queryKey: messagesKey(id ?? -1),
     queryFn: () => getMessages(id as number),
     enabled: id !== null,
+  })
+}
+
+export function useSuggestionsQuery() {
+  return useQuery({
+    queryKey: ['conversations', 'suggestions'],
+    queryFn: getSuggestions,
+    staleTime: 60_000,
   })
 }
 

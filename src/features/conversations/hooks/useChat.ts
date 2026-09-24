@@ -6,6 +6,15 @@ import type { Message } from '@/api/types/conversations'
 
 let tempIdCounter = -1
 
+function errorMessage(err: unknown): string {
+  if (err instanceof ApiError) {
+    const detail = (err.body as { detail?: string } | null)?.detail
+    if (detail) return detail
+    return err.message
+  }
+  return 'Não foi possível gerar a resposta.'
+}
+
 // O componente que chama esse hook é remontado (via `key`) a cada troca de
 // conversa, então o estado abaixo já nasce limpo — não precisa de reset manual.
 export function useChat(conversationId: number | null) {
@@ -21,7 +30,13 @@ export function useChat(conversationId: number | null) {
       setError(null)
       setMessages((prev) => [
         ...prev,
-        { id: tempIdCounter--, role: 'user', content, created_at: new Date().toISOString() },
+        {
+          id: tempIdCounter--,
+          role: 'user',
+          content,
+          feedback: null,
+          created_at: new Date().toISOString(),
+        },
       ])
       setIsStreaming(true)
       setStreamingText('')
@@ -38,12 +53,18 @@ export function useChat(conversationId: number | null) {
             id: tempIdCounter--,
             role: 'assistant',
             content: full,
+            feedback: null,
             created_at: new Date().toISOString(),
           },
         ])
         queryClient.invalidateQueries({ queryKey: ['conversations', 'list'] })
+        // Recarrega o histórico pra trocar os ids temporários pelos reais (o 👍/👎
+        // precisa do id da mensagem no servidor).
+        queryClient.invalidateQueries({
+          queryKey: ['conversations', 'detail', conversationId, 'messages'],
+        })
       } catch (err) {
-        setError(err instanceof ApiError ? err.message : 'Não foi possível gerar a resposta.')
+        setError(errorMessage(err))
       } finally {
         setStreamingText('')
         setIsStreaming(false)
