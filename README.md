@@ -139,7 +139,7 @@ recusa a ação.
 
 ## Materiais didáticos
 
-Upload de PDF/DOCX/PPTX/TXT processa em **background** no backend (extração
+Upload de PDF/DOCX/PPTX/MD/TXT processa em **background** no backend (extração
 via Docling, chunking, embeddings) — a resposta do envio já volta com
 status `"processing"`, não `"ready"`. A lista, o detalhe e o painel de
 trechos extraídos fazem polling automático (`refetchInterval` do TanStack
@@ -148,7 +148,12 @@ chunks aparecem sozinhos assim que o processamento termina, sem precisar
 recarregar a página. Um PDF real leva tipicamente ~40-60s até ficar
 `"ready"`.
 
-Título e curso dá pra editar depois do envio (botão "Editar" na tela de
+Um material pode valer para **mais de um curso**: no envio e na edição os
+cursos são caixas de seleção (ao menos um). O coordenador só marca cursos que
+coordena (os demais aparecem travados) e só vê o botão "Excluir" se coordenar
+todos os cursos do material (`can_delete` da API).
+
+Título e cursos dá pra editar depois do envio (botão "Editar" na tela de
 detalhe) — não reenvia o arquivo nem reprocessa os chunks, só metadados; pra
 isso existe o botão "Reprocessar" separado.
 
@@ -167,8 +172,8 @@ listas, links, tabelas); a mensagem do usuário fica como texto puro.
 
 **Tela inicial e sugestões:** numa conversa nova (ou em `/chat`) aparecem
 sugestões prontas (`GET /api/conversations/suggestions/`) — grade curricular,
-disciplinas, materiais disponíveis e perguntas baseadas nos materiais mais
-recentes. Clicar numa sugestão cria a conversa e envia a mensagem (passada via
+disciplinas e "com o que você pode me ajudar" (perguntas fixas; a resposta vem dos
+materiais). Clicar numa sugestão cria a conversa e envia a mensagem (passada via
 `location.state.initialMessage`, enviada uma única vez). Cada resposta tem
 **👍/👎** (`PATCH .../messages/{id}/feedback/`) e o campo de texto exibe um
 aviso de que a IA pode errar.
