@@ -35,7 +35,7 @@ export function ChatInput({
               submit()
             }
           }}
-          placeholder="Pergunte alguma coisa sobre os materiais do seu curso..."
+          placeholder="Pergunte alguma coisa sobre o seu curso e disciplinas..."
           rows={1}
           disabled={disabled}
           className="max-h-40 flex-1 resize-none rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-brand-navy focus:ring-1 focus:ring-brand-navy disabled:opacity-50"
@@ -45,8 +45,8 @@ export function ChatInput({
         </Button>
       </form>
       <p className="px-4 pb-3 text-center text-neutral-400 text-xs">
-        A S.O.F.I.A pode errar. Confira as informações importantes nos materiais e com seus
-        professores.
+        A S.O.F.I.A pode errar. Confira as informações importantes com seus professores e a
+        coordenação do curso.
       </p>
     </div>
   )

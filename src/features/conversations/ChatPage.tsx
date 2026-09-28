@@ -28,8 +28,8 @@ function WelcomeHeader() {
       <img src="/sofia-icon.png" alt="S.O.F.I.A" className="h-16 w-16" />
       <h1 className="font-semibold text-neutral-900 text-xl">Olá! Eu sou a S.O.F.I.A</h1>
       <p className="max-w-md text-neutral-500 text-sm">
-        Tire dúvidas sobre os materiais e as disciplinas do seu curso. Escolha uma sugestão ou
-        escreva sua pergunta.
+        Tire dúvidas sobre seu curso e disciplinas relacionadas. Escolha uma sugestão ou escreva sua
+        pergunta.
       </p>
     </div>
   )
