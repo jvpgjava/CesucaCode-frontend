@@ -53,8 +53,8 @@ export function DocumentDetailPage() {
         <div>
           <h1 className="font-semibold text-neutral-900 text-xl">{document.title}</h1>
           <p className="text-neutral-500 text-sm">
-            {document.course.name} · Enviado por {document.uploaded_by_name} em{' '}
-            {formatDate(document.created_at)}
+            {document.courses.map((c) => c.name).join(', ')} · Enviado por{' '}
+            {document.uploaded_by_name} em {formatDate(document.created_at)}
           </p>
         </div>
         <DocumentStatusBadge status={document.status} />
@@ -85,11 +85,19 @@ export function DocumentDetailPage() {
           <RefreshCw size={16} />
           {reprocessMutation.isPending ? 'Reprocessando...' : 'Reprocessar'}
         </Button>
-        <Button variant="danger" onClick={() => setDeleteOpen(true)}>
-          <Trash2 size={16} />
-          Excluir
-        </Button>
+        {document.can_delete && (
+          <Button variant="danger" onClick={() => setDeleteOpen(true)}>
+            <Trash2 size={16} />
+            Excluir
+          </Button>
+        )}
       </div>
+      {!document.can_delete && (
+        <p className="text-neutral-500 text-sm">
+          Este material também vale para cursos que você não coordena — só um CSAdmin pode
+          excluí-lo.
+        </p>
+      )}
 
       <DocumentChunksPanel
         documentId={documentId}

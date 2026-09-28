@@ -82,7 +82,7 @@ export function useUpdateDocumentMutation(id: number) {
   const queryClient = useQueryClient()
   const toast = useToast()
   return useMutation({
-    mutationFn: (data: { title?: string; course?: string }) => updateDocument(id, data),
+    mutationFn: (data: { title?: string; courses?: string[] }) => updateDocument(id, data),
     onSuccess: (updated) => {
       queryClient.setQueryData(documentKey(id), updated)
       queryClient.invalidateQueries({ queryKey: documentsListBaseKey })

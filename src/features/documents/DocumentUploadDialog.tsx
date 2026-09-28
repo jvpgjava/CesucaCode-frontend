@@ -1,13 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { ApiError } from '@/api/client'
 import { useCoursesQuery } from '@/shared/hooks/useCourses'
 import { Button } from '@/shared/ui/Button'
+import { CourseCheckboxGroup } from '@/shared/ui/CourseCheckboxGroup'
 import { Dialog, DialogContent } from '@/shared/ui/Dialog'
 import { Input } from '@/shared/ui/Input'
-import { Select } from '@/shared/ui/Select'
 import { useUploadDocumentMutation } from './hooks/useDocuments'
+import { useLockedCourseCodes } from './hooks/useLockedCourseCodes'
 import {
   type UploadDocumentFormInput,
   type UploadDocumentFormValues,
@@ -16,7 +17,7 @@ import {
 
 interface UploadErrorBody {
   title?: string[]
-  course?: string[]
+  courses?: string[]
   file?: string[]
 }
 
@@ -28,16 +29,19 @@ export function DocumentUploadDialog({
   onOpenChange: (open: boolean) => void
 }) {
   const { data: courses } = useCoursesQuery()
+  const lockedCodes = useLockedCourseCodes()
   const uploadMutation = useUploadDocumentMutation()
   const [formError, setFormError] = useState<string | null>(null)
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<UploadDocumentFormInput, unknown, UploadDocumentFormValues>({
     resolver: zodResolver(uploadDocumentSchema),
+    defaultValues: { courses: [] },
   })
 
   const onSubmit = async (values: UploadDocumentFormValues) => {
@@ -51,7 +55,7 @@ export function DocumentUploadDialog({
         const body = error.body as UploadErrorBody | null
         setFormError(
           body?.title?.[0] ??
-            body?.course?.[0] ??
+            body?.courses?.[0] ??
             body?.file?.[0] ??
             'Não foi possível enviar o material.',
         )
@@ -65,31 +69,30 @@ export function DocumentUploadDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         title="Enviar material didático"
-        description="PDF, DOCX, PPTX ou TXT, até 20MB."
+        description="PDF, DOCX, PPTX, MD ou TXT, até 20MB."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <Input label="Título" error={errors.title?.message} {...register('title')} />
 
-          <Select
-            label="Curso"
-            defaultValue=""
-            error={errors.course?.message}
-            {...register('course')}
-          >
-            <option value="" disabled>
-              Selecione um curso
-            </option>
-            {courses?.results.map((course) => (
-              <option key={course.id} value={course.code}>
-                {course.name}
-              </option>
-            ))}
-          </Select>
+          <Controller
+            control={control}
+            name="courses"
+            render={({ field }) => (
+              <CourseCheckboxGroup
+                label="Cursos"
+                courses={courses?.results ?? []}
+                value={field.value ?? []}
+                onChange={field.onChange}
+                lockedCodes={lockedCodes}
+                error={errors.courses?.message}
+              />
+            )}
+          />
 
           <Input
             label="Arquivo"
             type="file"
-            accept=".pdf,.docx,.pptx,.txt"
+            accept=".pdf,.docx,.pptx,.md,.txt"
             error={errors.file?.message}
             {...register('file')}
           />

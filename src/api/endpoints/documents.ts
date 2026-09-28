@@ -13,10 +13,10 @@ export function getDocument(id: number) {
   return request<Document>(`/api/documents/${id}/`)
 }
 
-export function uploadDocument(data: { title: string; course: string; file: File }) {
+export function uploadDocument(data: { title: string; courses: string[]; file: File }) {
   const formData = new FormData()
   formData.append('title', data.title)
-  formData.append('course', data.course)
+  for (const code of data.courses) formData.append('courses', code)
   formData.append('file', data.file)
   return request<DocumentUploadResponse>('/api/documents/upload/', {
     method: 'POST',
@@ -29,7 +29,7 @@ export function deleteDocument(id: number) {
   return request<void>(`/api/documents/${id}/`, { method: 'DELETE' })
 }
 
-export function updateDocument(id: number, data: { title?: string; course?: string }) {
+export function updateDocument(id: number, data: { title?: string; courses?: string[] }) {
   return request<Document>(`/api/documents/${id}/`, { method: 'PATCH', body: data })
 }
 

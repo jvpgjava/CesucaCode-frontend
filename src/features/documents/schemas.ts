@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
-const SUPPORTED_EXTENSIONS = ['pdf', 'docx', 'pptx', 'txt']
+const SUPPORTED_EXTENSIONS = ['pdf', 'docx', 'pptx', 'md', 'txt']
 const MAX_FILE_SIZE_MB = 20
 
 export const uploadDocumentSchema = z.object({
   title: z.string().min(1, 'Informe um título.'),
-  course: z.string().min(1, 'Selecione um curso.'),
+  courses: z.array(z.string()).min(1, 'Selecione ao menos um curso.'),
   file: z
     .instanceof(FileList)
     .refine((files) => files.length > 0, 'Selecione um arquivo.')

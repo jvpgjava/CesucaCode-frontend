@@ -16,7 +16,9 @@ export function DocumentRow({ document, canManage }: { document: Document; canMa
           document.title
         )}
       </td>
-      <td className="px-4 py-3 align-middle text-neutral-600">{document.course.name}</td>
+      <td className="px-4 py-3 align-middle text-neutral-600">
+        {document.courses.map((c) => c.name).join(', ')}
+      </td>
       <td className="px-4 py-3 align-middle">
         <DocumentStatusBadge status={document.status} />
       </td>

@@ -3,14 +3,15 @@ import { ApiError } from '@/api/client'
 import type { Document } from '@/api/types/documents'
 import { useCoursesQuery } from '@/shared/hooks/useCourses'
 import { Button } from '@/shared/ui/Button'
+import { CourseCheckboxGroup } from '@/shared/ui/CourseCheckboxGroup'
 import { Dialog, DialogContent } from '@/shared/ui/Dialog'
 import { Input } from '@/shared/ui/Input'
-import { Select } from '@/shared/ui/Select'
 import { useUpdateDocumentMutation } from './hooks/useDocuments'
+import { useLockedCourseCodes } from './hooks/useLockedCourseCodes'
 
 interface UpdateErrorBody {
   title?: string[]
-  course?: string[]
+  courses?: string[]
 }
 
 export function DocumentEditDialog({
@@ -23,15 +24,17 @@ export function DocumentEditDialog({
   onOpenChange: (open: boolean) => void
 }) {
   const { data: courses } = useCoursesQuery()
+  const lockedCodes = useLockedCourseCodes()
   const updateMutation = useUpdateDocumentMutation(document.id)
+  const documentCourseCodes = document.courses.map((c) => c.code)
   const [title, setTitle] = useState(document.title)
-  const [course, setCourse] = useState(document.course.code)
+  const [selectedCourses, setSelectedCourses] = useState(documentCourseCodes)
   const [error, setError] = useState<string | null>(null)
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
       setTitle(document.title)
-      setCourse(document.course.code)
+      setSelectedCourses(documentCourseCodes)
       setError(null)
     }
     onOpenChange(nextOpen)
@@ -40,13 +43,17 @@ export function DocumentEditDialog({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setError(null)
+    if (selectedCourses.length === 0) {
+      setError('Selecione ao menos um curso.')
+      return
+    }
     try {
-      await updateMutation.mutateAsync({ title, course })
+      await updateMutation.mutateAsync({ title, courses: selectedCourses })
       onOpenChange(false)
     } catch (err) {
       if (err instanceof ApiError) {
         const body = err.body as UpdateErrorBody | null
-        setError(body?.title?.[0] ?? body?.course?.[0] ?? 'Não foi possível salvar.')
+        setError(body?.title?.[0] ?? body?.courses?.[0] ?? 'Não foi possível salvar.')
       } else {
         setError('Não foi possível salvar. Tente novamente.')
       }
@@ -57,7 +64,7 @@ export function DocumentEditDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         title="Editar material"
-        description="Só título e curso — o arquivo em si não é reenviado aqui."
+        description="Só título e cursos — o arquivo em si não é reenviado aqui."
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Input
@@ -67,18 +74,13 @@ export function DocumentEditDialog({
             onChange={(event) => setTitle(event.target.value)}
           />
 
-          <Select
-            label="Curso"
-            name="course"
-            value={course}
-            onChange={(event) => setCourse(event.target.value)}
-          >
-            {courses?.results.map((c) => (
-              <option key={c.id} value={c.code}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
+          <CourseCheckboxGroup
+            label="Cursos"
+            courses={courses?.results ?? []}
+            value={selectedCourses}
+            onChange={setSelectedCourses}
+            lockedCodes={lockedCodes}
+          />
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 

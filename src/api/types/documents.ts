@@ -5,19 +5,21 @@ export type DocumentStatus = 'processing' | 'ready' | 'failed'
 export interface Document {
   id: number
   title: string
-  course: Course
+  courses: Course[]
   file: string
   uploaded_by_name: string
   status: DocumentStatus
   processing_error: string
   chunk_count: number
+  /** Coordenador só exclui se coordenar todos os cursos do material. */
+  can_delete: boolean
   created_at: string
 }
 
 export interface DocumentUploadResponse {
   id: number
   title: string
-  course: string
+  courses: string[]
   file: string
   status: DocumentStatus
   processing_error: string
