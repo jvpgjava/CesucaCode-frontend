@@ -187,11 +187,12 @@ gerador de eventos tipados): `meta` (id da mensagem do usuário e rota),
 `event:`), `suggestions` (follow-ups), `done` (`message_id` da resposta) e
 `error`. Eventos desconhecidos são ignorados.
 
-**Progresso:** no lugar de "Pensando…", a resposta em andamento mostra uma
-linha do tempo de etapas (spinner na ativa, check nas concluídas, rótulos
-vindos do backend). Quando o texto começa a chegar ela recolhe num resumo
-("3 etapas concluídas") que pode ser expandido. Mensagens carregadas do
-histórico não têm timeline.
+**Progresso:** antes do primeiro token, o balão da resposta mostra uma única
+linha com a etapa atual (rótulo vindo do backend, com efeito shimmer que
+respeita `prefers-reduced-motion`; "Pensando…" enquanto nenhum status chegou).
+Um chevron discreto expande a lista de etapas (check nas concluídas, spinner na
+ativa); nunca abre sozinho. Assim que o texto começa a chegar, a área de etapas
+some por completo. Mensagens carregadas do histórico não têm progresso.
 
 **Parar e gerar novamente:** durante a resposta o botão de enviar vira
 **Parar** (aborta o `fetch` via `AbortController`; o texto parcial fica na

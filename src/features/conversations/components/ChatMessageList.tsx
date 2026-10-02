@@ -66,10 +66,7 @@ export function ChatMessageList({
         <ChatBubble
           sender="assistant"
           content={streamingText}
-          pending
-          header={
-            steps.length > 0 ? <StepsTimeline steps={steps} hasText={!!streamingText} /> : undefined
-          }
+          header={streamingText ? undefined : <StepProgress steps={steps} />}
         />
       )}
       {endsWithAssistant && !isStreaming && suggestions.length > 0 && (
@@ -82,34 +79,38 @@ export function ChatMessageList({
   )
 }
 
-// Linha do tempo compacta das etapas da resposta. Enquanto o texto ainda não
-// chegou fica aberta; depois que começa a ser escrito, recolhe num resumo que
-// o usuário pode expandir. Só existe para a resposta em andamento.
-function StepsTimeline({ steps, hasText }: { steps: ChatStep[]; hasText: boolean }) {
-  const [userExpanded, setUserExpanded] = useState<boolean | null>(null)
-  const expanded = userExpanded ?? !hasText
-  const doneCount = steps.filter((step) => step.status === 'done').length
-
-  const summary =
-    doneCount === 0
-      ? 'Trabalhando na resposta'
-      : `${doneCount} ${doneCount === 1 ? 'etapa concluída' : 'etapas concluídas'}`
+// Progresso da resposta em andamento: uma única linha com a etapa ATUAL (e
+// shimmer no texto). O chevron expande a lista completa de etapas sob demanda;
+// nunca abre sozinho. Só é exibido antes do primeiro token: assim que o texto
+// chega, o cabeçalho some por completo.
+function StepProgress({ steps }: { steps: ChatStep[] }) {
+  const [expanded, setExpanded] = useState(false)
+  const current = steps.length > 0 ? steps[steps.length - 1].label : 'Pensando…'
 
   return (
-    <div aria-live="polite" className={cn('text-neutral-500 text-xs', hasText && 'mb-2')}>
-      {hasText && (
-        <button
-          type="button"
-          onClick={() => setUserExpanded(!expanded)}
-          aria-expanded={expanded}
-          className="flex items-center gap-1 rounded text-neutral-500 hover:text-neutral-800"
-        >
-          {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-          {summary}
-        </button>
-      )}
+    <div className="text-neutral-500 text-sm">
+      <div className="flex items-center gap-2">
+        <Spinner size={14} className="shrink-0 text-brand-navy" />
+        <span aria-live="polite" className="min-w-0 flex-1">
+          <span key={current} className="inline-block animate-step-fade-in text-shimmer">
+            {current}
+          </span>
+        </span>
+        {steps.length > 1 && (
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            aria-expanded={expanded}
+            aria-label={expanded ? 'Ocultar etapas' : 'Ver etapas'}
+            title={expanded ? 'Ocultar etapas' : 'Ver etapas'}
+            className="rounded p-0.5 text-neutral-400 hover:text-neutral-700"
+          >
+            {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+        )}
+      </div>
       {expanded && (
-        <ul className={cn('flex flex-col gap-1', hasText && 'mt-1.5 pl-1')}>
+        <ul className="mt-2 flex flex-col gap-1 pl-0.5 text-xs">
           {steps.map((step, index) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: a lista só cresce; etapas podem repetir o mesmo `step`
             <li key={`${index}-${step.step}`} className="flex items-center gap-2">
@@ -132,13 +133,11 @@ function StepsTimeline({ steps, hasText }: { steps: ChatStep[]; hasText: boolean
 function ChatBubble({
   sender,
   content,
-  pending,
   header,
   footer,
 }: {
   sender: MessageRole
   content: string
-  pending?: boolean
   header?: ReactNode
   footer?: ReactNode
 }) {
@@ -164,7 +163,6 @@ function ChatBubble({
           )}
         >
           {header}
-          {!content && pending && !header && <span className="text-neutral-400">Pensando...</span>}
           {content && (isUser ? content : <MarkdownContent content={content} />)}
         </div>
         {footer}
