@@ -24,7 +24,7 @@ export function DocumentRow({ document, canManage }: { document: Document; canMa
       </td>
       <td className="px-4 py-3 align-middle text-neutral-600">{document.uploaded_by_name}</td>
       <td className="px-4 py-3 align-middle text-neutral-600">{formatDate(document.created_at)}</td>
-      <td className="px-4 py-3 align-middle text-right">
+      <td className="px-4 py-3 text-right align-middle">
         <a
           href={document.file}
           target="_blank"
