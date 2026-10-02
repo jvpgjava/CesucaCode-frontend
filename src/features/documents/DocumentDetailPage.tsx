@@ -53,8 +53,10 @@ export function DocumentDetailPage() {
         <div>
           <h1 className="font-semibold text-neutral-900 text-xl">{document.title}</h1>
           <p className="text-neutral-500 text-sm">
-            {document.courses.map((c) => c.name).join(', ')} · Enviado por{' '}
-            {document.uploaded_by_name} em {formatDate(document.created_at)}
+            {document.courses.map((c) => c.name).join(', ')} ·{' '}
+            {document.uploaded_by_name
+              ? `Enviado por ${document.uploaded_by_name} em ${formatDate(document.created_at)}`
+              : `Enviado em ${formatDate(document.created_at)}`}
           </p>
         </div>
         <DocumentStatusBadge status={document.status} />
@@ -67,12 +69,14 @@ export function DocumentDetailPage() {
       )}
 
       <div className="flex flex-wrap gap-2">
-        <a href={document.file} target="_blank" rel="noreferrer">
-          <Button variant="secondary">
-            <Download size={16} />
-            Baixar arquivo
-          </Button>
-        </a>
+        {document.file && (
+          <a href={document.file} target="_blank" rel="noreferrer">
+            <Button variant="secondary">
+              <Download size={16} />
+              Baixar arquivo
+            </Button>
+          </a>
+        )}
         <Button variant="secondary" onClick={() => setEditOpen(true)}>
           <Pencil size={16} />
           Editar

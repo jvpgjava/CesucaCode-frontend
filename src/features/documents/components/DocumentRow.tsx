@@ -4,7 +4,16 @@ import type { Document } from '@/api/types/documents'
 import { formatDate } from '@/shared/lib/formatDate'
 import { DocumentStatusBadge } from './DocumentStatusBadge'
 
-export function DocumentRow({ document, canManage }: { document: Document; canManage: boolean }) {
+export function DocumentRow({
+  document,
+  canManage,
+  isStudentView,
+}: {
+  document: Document
+  canManage: boolean
+  /** Estudante vê só título, curso e data (a API omite arquivo e autor). */
+  isStudentView: boolean
+}) {
   return (
     <tr>
       <td className="px-4 py-3 align-middle font-medium text-neutral-900">
@@ -19,21 +28,32 @@ export function DocumentRow({ document, canManage }: { document: Document; canMa
       <td className="px-4 py-3 align-middle text-neutral-600">
         {document.courses.map((c) => c.name).join(', ')}
       </td>
-      <td className="px-4 py-3 align-middle">
-        <DocumentStatusBadge status={document.status} />
-      </td>
-      <td className="px-4 py-3 align-middle text-neutral-600">{document.uploaded_by_name}</td>
+      {!isStudentView && (
+        <>
+          <td className="px-4 py-3 align-middle">
+            <DocumentStatusBadge status={document.status} />
+          </td>
+          <td className="px-4 py-3 align-middle text-neutral-600">
+            {document.uploaded_by_name ?? '—'}
+          </td>
+        </>
+      )}
       <td className="px-4 py-3 align-middle text-neutral-600">{formatDate(document.created_at)}</td>
-      <td className="px-4 py-3 text-right align-middle">
-        <a
-          href={document.file}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 text-neutral-500 hover:text-neutral-900"
-        >
-          <Download size={16} />
-        </a>
-      </td>
+      {!isStudentView && (
+        <td className="px-4 py-3 text-right align-middle">
+          {document.file && (
+            <a
+              href={document.file}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Baixar arquivo"
+              className="inline-flex items-center gap-1 text-neutral-500 hover:text-neutral-900"
+            >
+              <Download size={16} />
+            </a>
+          )}
+        </td>
+      )}
     </tr>
   )
 }

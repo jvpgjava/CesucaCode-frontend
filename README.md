@@ -128,6 +128,10 @@ Os mesmos três papéis do backend, refletidos na interface:
 | **CSCoordinator** | Sim | Sim, só dos cursos que coordena | Não | Só dos cursos que coordena |
 | **CSStudent** | Sim | Sim, só do próprio curso | Não | Não |
 
+Estudante enxerga "Materiais" só com título, curso e data: a API omite `file`,
+`uploaded_by_name` e `processing_error` para ele, e o frontend esconde as
+colunas de status, autor e download (a página segue acessível; sem filtro no front).
+
 O contexto RAG do chat respeita o mesmo escopo de materiais que cada papel
 pode ver na API — aluno só “consulta” materiais do próprio curso; coordenador,
 dos cursos que coordena; admin, todos.

@@ -6,10 +6,13 @@ export interface Document {
   id: number
   title: string
   courses: Course[]
-  file: string
-  uploaded_by_name: string
+  /** Omitido pela API para estudantes (não expõe arquivos internos do acervo). */
+  file?: string
+  /** Omitido pela API para estudantes. */
+  uploaded_by_name?: string
   status: DocumentStatus
-  processing_error: string
+  /** Omitido pela API para estudantes. */
+  processing_error?: string
   chunk_count: number
   /** Coordenador só exclui se coordenar todos os cursos do material. */
   can_delete: boolean

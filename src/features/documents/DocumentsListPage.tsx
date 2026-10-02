@@ -1,7 +1,7 @@
 import { FolderOpen, Search, Upload } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useAuth } from '@/features/auth/useAuth'
-import { isAdmin, isCoordinator } from '@/shared/auth/roles'
+import { isAdmin, isCoordinator, isStudent } from '@/shared/auth/roles'
 import { Button } from '@/shared/ui/Button'
 import { EmptyState } from '@/shared/ui/EmptyState'
 import { Input } from '@/shared/ui/Input'
@@ -14,6 +14,9 @@ import { useDocumentsQuery } from './hooks/useDocuments'
 export function DocumentsListPage() {
   const { user } = useAuth()
   const canManage = isAdmin(user) || isCoordinator(user)
+  // Estudante vê só título, curso e data: a API omite arquivo e autor, e o
+  // status de processamento é informação operacional que não lhe interessa.
+  const isStudentView = isStudent(user)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [uploadOpen, setUploadOpen] = useState(false)
@@ -71,15 +74,24 @@ export function DocumentsListPage() {
               <tr>
                 <th className="px-4 py-3">Título</th>
                 <th className="px-4 py-3">Curso</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Enviado por</th>
+                {!isStudentView && (
+                  <>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Enviado por</th>
+                  </>
+                )}
                 <th className="px-4 py-3">Data</th>
-                <th className="px-4 py-3" />
+                {!isStudentView && <th className="px-4 py-3" />}
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
               {documents.map((doc) => (
-                <DocumentRow key={doc.id} document={doc} canManage={canManage} />
+                <DocumentRow
+                  key={doc.id}
+                  document={doc}
+                  canManage={canManage}
+                  isStudentView={isStudentView}
+                />
               ))}
             </tbody>
           </table>
