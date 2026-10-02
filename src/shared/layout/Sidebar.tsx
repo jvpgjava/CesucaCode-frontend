@@ -221,6 +221,8 @@ function ConversationListItem({
   }
 
   if (isEditing) {
+    // Mesma geometria da linha normal (padding, ícone, tamanho dos botões): só o
+    // texto vira editável e um anel indica a edição, sem nada mudar de lugar.
     return (
       <li>
         <form
@@ -228,32 +230,42 @@ function ConversationListItem({
             event.preventDefault()
             save()
           }}
-          className="flex items-center gap-1 px-2 py-1"
+          className="flex items-center rounded-lg bg-neutral-100 pr-1 ring-1 ring-brand-navy/40 ring-inset"
         >
-          <input
-            // biome-ignore lint/a11y/noAutofocus: campo só existe porque o usuário acabou de clicar em "renomear" — foco automático é o esperado aqui, não uma surpresa de carregamento de página
-            autoFocus
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') setIsEditing(false)
-            }}
-            className="min-w-0 flex-1 rounded border border-brand-navy px-2 py-1 text-sm outline-none"
-          />
+          <div
+            className={cn(
+              'flex flex-1 items-center gap-2 overflow-hidden px-3 py-1.5 text-sm',
+              isActive ? 'font-medium text-brand-navy' : 'text-neutral-600',
+            )}
+          >
+            <MessageCircle size={13} className="shrink-0 text-neutral-400" />
+            <input
+              // biome-ignore lint/a11y/noAutofocus: campo só existe porque o usuário acabou de clicar em "renomear" — foco automático é o esperado aqui, não uma surpresa de carregamento de página
+              autoFocus
+              onFocus={(event) => event.currentTarget.select()}
+              aria-label="Nome da conversa"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') setIsEditing(false)
+              }}
+              className="m-0 block w-full min-w-0 border-0 bg-transparent p-0 text-inherit leading-[inherit] outline-none"
+            />
+          </div>
           <button
             type="submit"
             title="Salvar"
-            className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-200"
+            className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-700"
           >
-            <Check size={13} />
+            <Check size={12} />
           </button>
           <button
             type="button"
             onClick={() => setIsEditing(false)}
             title="Cancelar"
-            className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-200"
+            className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-700"
           >
-            <X size={13} />
+            <X size={12} />
           </button>
         </form>
       </li>
