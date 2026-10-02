@@ -7,6 +7,8 @@ import {
   listConversations,
   renameConversation,
 } from '@/api/endpoints/conversations'
+import type { Paginated } from '@/api/types/common'
+import type { Conversation } from '@/api/types/conversations'
 import { useToast } from '@/shared/ui/Toast'
 
 const conversationsListKey = ['conversations', 'list'] as const
@@ -56,16 +58,33 @@ export function useRenameConversationMutation() {
   })
 }
 
+/**
+ * Exclui a conversa no servidor. Não mexe no cache da lista: quem chama decide quando
+ * remover o item (ver `useRemoveConversationFromCache`), para poder animar a saída antes.
+ */
 export function useDeleteConversationMutation() {
-  const queryClient = useQueryClient()
   const toast = useToast()
   return useMutation({
     mutationFn: deleteConversation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: conversationsListKey })
-    },
     onError: () => {
       toast.error('Não foi possível excluir a conversa. Tente novamente.')
     },
   })
+}
+
+/** Remove a conversa do cache da lista (sem piscar) e revalida em seguida. */
+export function useRemoveConversationFromCache() {
+  const queryClient = useQueryClient()
+  return (id: number) => {
+    queryClient.setQueryData<Paginated<Conversation>>(conversationsListKey, (old) =>
+      old
+        ? {
+            ...old,
+            count: Math.max(0, old.count - 1),
+            results: old.results.filter((conversation) => conversation.id !== id),
+          }
+        : old,
+    )
+    queryClient.invalidateQueries({ queryKey: conversationsListKey })
+  }
 }

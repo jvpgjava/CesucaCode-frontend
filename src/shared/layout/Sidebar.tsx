@@ -18,12 +18,22 @@ import {
   useConversationsQuery,
   useCreateConversationMutation,
   useDeleteConversationMutation,
+  useRemoveConversationFromCache,
   useRenameConversationMutation,
 } from '@/features/conversations/hooks/useConversations'
 import { isAdmin } from '@/shared/auth/roles'
 import { cn } from '@/shared/lib/cn'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { Spinner } from '@/shared/ui/Spinner'
 import { UserMenu } from './UserMenu'
+
+/** Duração da animação de saída do item (mantida em sincronia com `duration-200` abaixo). */
+const REMOVE_ANIMATION_MS = 200
+const TITLE_PREVIEW_MAX = 40
+
+function truncate(text: string, max: number) {
+  return text.length > max ? `${text.slice(0, max).trimEnd()}…` : text
+}
 
 const navItems = [
   { to: '/chat', label: 'Chat', icon: MessageCircle, adminOnly: false },
@@ -41,21 +51,36 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   const { data: conversations, isLoading: loadingConversations } = useConversationsQuery()
   const createMutation = useCreateConversationMutation()
   const deleteMutation = useDeleteConversationMutation()
+  const removeFromCache = useRemoveConversationFromCache()
+  // Conversas já excluídas no servidor que ainda estão animando a saída da lista.
+  const [removingIds, setRemovingIds] = useState<number[]>([])
 
   const handleNewConversation = async () => {
     const conversation = await createMutation.mutateAsync()
     navigate(`/chat/${conversation.id}`)
   }
 
+  /** Retorna `true` se a exclusão deu certo (em erro, o toast já é exibido pelo hook). */
   const handleDeleteConversation = async (id: number) => {
     try {
       await deleteMutation.mutateAsync(id)
     } catch {
-      return
+      return false
     }
     if (id === activeConversationId) {
       navigate('/chat', { replace: true })
     }
+    // Só remove do cache depois da animação, para o item não sumir de repente.
+    setRemovingIds((current) => [...current, id])
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.setTimeout(
+      () => {
+        removeFromCache(id)
+        setRemovingIds((current) => current.filter((removingId) => removingId !== id))
+      },
+      reduceMotion ? 0 : REMOVE_ANIMATION_MS,
+    )
+    return true
   }
 
   return (
@@ -136,6 +161,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                         key={conversation.id}
                         conversation={conversation}
                         isActive={conversation.id === activeConversationId}
+                        isRemoving={removingIds.includes(conversation.id)}
                         onOpen={() => navigate(`/chat/${conversation.id}`)}
                         onDelete={() => handleDeleteConversation(conversation.id)}
                       />
@@ -156,16 +182,20 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
 function ConversationListItem({
   conversation,
   isActive,
+  isRemoving,
   onOpen,
   onDelete,
 }: {
   conversation: Conversation
   isActive: boolean
+  isRemoving: boolean
   onOpen: () => void
-  onDelete: () => void
+  onDelete: () => Promise<boolean>
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(conversation.title)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const renameMutation = useRenameConversationMutation()
 
   const startEditing = () => {
@@ -179,6 +209,15 @@ function ConversationListItem({
       renameMutation.mutate({ id: conversation.id, title: trimmed })
     }
     setIsEditing(false)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (isDeleting) return
+    setIsDeleting(true)
+    await onDelete()
+    // Sucesso ou erro: o modal fecha (em erro o toast já foi exibido).
+    setConfirmOpen(false)
+    setIsDeleting(false)
   }
 
   if (isEditing) {
@@ -222,36 +261,52 @@ function ConversationListItem({
   }
 
   return (
-    <li>
-      <div className="group flex items-center rounded-lg pr-1 hover:bg-neutral-100">
-        <button
-          type="button"
-          onClick={onOpen}
-          className={cn(
-            'flex flex-1 items-center gap-2 overflow-hidden px-3 py-1.5 text-left text-sm',
-            isActive ? 'font-medium text-brand-navy' : 'text-neutral-600',
-          )}
-        >
-          <MessageCircle size={13} className="shrink-0 text-neutral-400" />
-          <span className="block truncate">{conversation.title || 'Nova conversa'}</span>
-        </button>
-        <button
-          type="button"
-          onClick={startEditing}
-          title="Renomear conversa"
-          className="shrink-0 rounded p-1 text-neutral-400 opacity-0 hover:bg-neutral-200 hover:text-neutral-700 group-hover:opacity-100"
-        >
-          <Pencil size={12} />
-        </button>
-        <button
-          type="button"
-          onClick={onDelete}
-          title="Excluir conversa"
-          className="shrink-0 rounded p-1 text-neutral-400 opacity-0 hover:bg-neutral-200 hover:text-neutral-700 group-hover:opacity-100"
-        >
-          <Trash2 size={12} />
-        </button>
+    <li
+      className={cn(
+        'grid transition-[grid-template-rows,opacity,translate] duration-200 ease-out motion-reduce:transition-none',
+        isRemoving ? '-translate-x-3 grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr]',
+      )}
+    >
+      <div className="min-h-0 overflow-hidden">
+        <div className="group flex items-center rounded-lg pr-1 hover:bg-neutral-100">
+          <button
+            type="button"
+            onClick={onOpen}
+            className={cn(
+              'flex flex-1 items-center gap-2 overflow-hidden px-3 py-1.5 text-left text-sm',
+              isActive ? 'font-medium text-brand-navy' : 'text-neutral-600',
+            )}
+          >
+            <MessageCircle size={13} className="shrink-0 text-neutral-400" />
+            <span className="block truncate">{conversation.title || 'Nova conversa'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={startEditing}
+            title="Renomear conversa"
+            className="shrink-0 rounded p-1 text-neutral-400 opacity-0 hover:bg-neutral-200 hover:text-neutral-700 group-hover:opacity-100"
+          >
+            <Pencil size={12} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmOpen(true)}
+            title="Excluir conversa"
+            className="shrink-0 rounded p-1 text-neutral-400 opacity-0 hover:bg-neutral-200 hover:text-neutral-700 group-hover:opacity-100"
+          >
+            <Trash2 size={12} />
+          </button>
+        </div>
       </div>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Excluir conversa?"
+        description={`A conversa “${truncate(conversation.title || 'Nova conversa', TITLE_PREVIEW_MAX)}” será excluída permanentemente. Essa ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        isPending={isDeleting}
+        onConfirm={handleConfirmDelete}
+      />
     </li>
   )
 }

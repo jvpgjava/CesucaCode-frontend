@@ -16,16 +16,19 @@ export function DialogContent({
   className,
   title,
   description,
+  onOpenAutoFocus,
 }: {
   children: ReactNode
   className?: string
   title: string
   description: string
+  onOpenAutoFocus?: (event: Event) => void
 }) {
   return (
     <RadixDialog.Portal>
       <RadixDialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
       <RadixDialog.Content
+        onOpenAutoFocus={onOpenAutoFocus}
         className={cn(
           'fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl',
           className,
