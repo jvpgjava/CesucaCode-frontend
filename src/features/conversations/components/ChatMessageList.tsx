@@ -1,46 +1,130 @@
-import { type ReactNode, useEffect, useRef } from 'react'
+import { Check, ChevronDown, ChevronRight } from 'lucide-react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import type { Message, MessageRole } from '@/api/types/conversations'
+import type { ChatStep, Message, MessageRole } from '@/api/types/conversations'
 import { useAuth } from '@/features/auth/useAuth'
 import { cn } from '@/shared/lib/cn'
 import { AvatarCircle } from '@/shared/ui/AvatarCircle'
+import { Spinner } from '@/shared/ui/Spinner'
 import { MessageFeedback } from './MessageFeedback'
+import { FollowUpChips } from './SuggestionChips'
 
 export function ChatMessageList({
   conversationId,
   messages,
   streamingText,
   isStreaming,
+  steps,
+  suggestions,
+  onRegenerate,
+  onPickSuggestion,
 }: {
   conversationId: number
   messages: Message[]
   streamingText: string
   isStreaming: boolean
+  steps: ChatStep[]
+  suggestions: string[]
+  onRegenerate: () => void
+  onPickSuggestion: (text: string) => void
 }) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: rola até o fim a cada mensagem/pedaço novo
+  // biome-ignore lint/correctness/useExhaustiveDependencies: rola até o fim a cada mensagem/pedaço/etapa nova
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, streamingText])
+  }, [messages, streamingText, steps, suggestions])
+
+  // "Gerar novamente" e os follow-ups só fazem sentido na última resposta
+  // (a última mensagem da conversa) e fora do stream.
+  const lastIndex = messages.length - 1
+  const endsWithAssistant = lastIndex >= 0 && messages[lastIndex].role === 'assistant'
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
-      {messages.map((message) => (
+      {messages.map((message, index) => {
+        const isLastAssistant = endsWithAssistant && index === lastIndex && !isStreaming
+        return (
+          <ChatBubble
+            key={message.id}
+            sender={message.role}
+            content={message.content}
+            footer={
+              message.role === 'assistant' ? (
+                <MessageFeedback
+                  conversationId={conversationId}
+                  message={message}
+                  onRegenerate={isLastAssistant ? onRegenerate : undefined}
+                />
+              ) : undefined
+            }
+          />
+        )
+      })}
+      {isStreaming && (
         <ChatBubble
-          key={message.id}
-          sender={message.role}
-          content={message.content}
-          footer={
-            message.role === 'assistant' ? (
-              <MessageFeedback conversationId={conversationId} message={message} />
-            ) : undefined
+          sender="assistant"
+          content={streamingText}
+          pending
+          header={
+            steps.length > 0 ? <StepsTimeline steps={steps} hasText={!!streamingText} /> : undefined
           }
         />
-      ))}
-      {isStreaming && <ChatBubble sender="assistant" content={streamingText} pending />}
+      )}
+      {endsWithAssistant && !isStreaming && suggestions.length > 0 && (
+        <div className="pl-11">
+          <FollowUpChips items={suggestions} onPick={onPickSuggestion} />
+        </div>
+      )}
       <div ref={bottomRef} />
+    </div>
+  )
+}
+
+// Linha do tempo compacta das etapas da resposta. Enquanto o texto ainda não
+// chegou fica aberta; depois que começa a ser escrito, recolhe num resumo que
+// o usuário pode expandir. Só existe para a resposta em andamento.
+function StepsTimeline({ steps, hasText }: { steps: ChatStep[]; hasText: boolean }) {
+  const [userExpanded, setUserExpanded] = useState<boolean | null>(null)
+  const expanded = userExpanded ?? !hasText
+  const doneCount = steps.filter((step) => step.status === 'done').length
+
+  const summary =
+    doneCount === 0
+      ? 'Trabalhando na resposta'
+      : `${doneCount} ${doneCount === 1 ? 'etapa concluída' : 'etapas concluídas'}`
+
+  return (
+    <div aria-live="polite" className={cn('text-neutral-500 text-xs', hasText && 'mb-2')}>
+      {hasText && (
+        <button
+          type="button"
+          onClick={() => setUserExpanded(!expanded)}
+          aria-expanded={expanded}
+          className="flex items-center gap-1 rounded text-neutral-500 hover:text-neutral-800"
+        >
+          {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+          {summary}
+        </button>
+      )}
+      {expanded && (
+        <ul className={cn('flex flex-col gap-1', hasText && 'mt-1.5 pl-1')}>
+          {steps.map((step, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: a lista só cresce; etapas podem repetir o mesmo `step`
+            <li key={`${index}-${step.step}`} className="flex items-center gap-2">
+              {step.status === 'active' ? (
+                <Spinner size={12} className="text-brand-navy" />
+              ) : (
+                <Check size={12} className="text-green-600" />
+              )}
+              <span className={cn(step.status === 'active' && 'text-neutral-800')}>
+                {step.label}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
@@ -49,11 +133,13 @@ function ChatBubble({
   sender,
   content,
   pending,
+  header,
   footer,
 }: {
   sender: MessageRole
   content: string
   pending?: boolean
+  header?: ReactNode
   footer?: ReactNode
 }) {
   const { user } = useAuth()
@@ -77,7 +163,8 @@ function ChatBubble({
               : 'bg-white text-neutral-900 shadow-sm',
           )}
         >
-          {!content && pending && <span className="text-neutral-400">Pensando...</span>}
+          {header}
+          {!content && pending && !header && <span className="text-neutral-400">Pensando...</span>}
           {content && (isUser ? content : <MarkdownContent content={content} />)}
         </div>
         {footer}

@@ -174,9 +174,36 @@ listas, links, tabelas); a mensagem do usuário fica como texto puro.
 sugestões prontas (`GET /api/conversations/suggestions/`) — grade curricular,
 disciplinas e "com o que você pode me ajudar" (perguntas fixas; a resposta vem dos
 materiais). Clicar numa sugestão cria a conversa e envia a mensagem (passada via
-`location.state.initialMessage`, enviada uma única vez). Cada resposta tem
-**👍/👎** (`PATCH .../messages/{id}/feedback/`) e o campo de texto exibe um
-aviso de que a IA pode errar.
+`location.state.initialMessage`, enviada uma única vez). O campo de texto exibe
+um aviso de que a IA pode errar.
+
+**Eventos SSE** (`sendMessage` em `src/api/endpoints/conversations.ts` é um
+gerador de eventos tipados): `meta` (id da mensagem do usuário e rota),
+`status` (etapa + rótulo), `token` (pedaço de texto; evento padrão, sem
+`event:`), `suggestions` (follow-ups), `done` (`message_id` da resposta) e
+`error`. Eventos desconhecidos são ignorados.
+
+**Progresso:** no lugar de "Pensando…", a resposta em andamento mostra uma
+linha do tempo de etapas (spinner na ativa, check nas concluídas, rótulos
+vindos do backend). Quando o texto começa a chegar ela recolhe num resumo
+("3 etapas concluídas") que pode ser expandido. Mensagens carregadas do
+histórico não têm timeline.
+
+**Parar e gerar novamente:** durante a resposta o botão de enviar vira
+**Parar** (aborta o `fetch` via `AbortController`; o texto parcial fica na
+conversa e o servidor também o salva). Se o stream falha no meio, o texto
+parcial é preservado e aparece o erro com **Tentar novamente**. A última
+resposta tem a ação **Gerar novamente** (`regenerate: true` no envio, que
+descarta o último par pergunta/resposta). O stream é abortado ao sair da
+conversa.
+
+**Follow-ups:** depois da última resposta (fora do stream), chips com as
+perguntas sugeridas no evento `suggestions`; clicar envia a pergunta.
+
+**Feedback:** cada resposta tem **👍/👎** (`PATCH .../messages/{id}/feedback/`
+com `{feedback, reason?, comment?}`). Ao marcar 👎 abre um diálogo com o motivo
+(Incorreta, Incompleta, Não entendeu a pergunta, Fora do meu curso, Outro) e
+comentário opcional de até 500 caracteres; dá para pular e ficar só com o 👎.
 
 **Pré-requisitos no backend:** chaves de LLM e embedding configuradas no
 `.env` dele, e materiais com `status=ready` e embeddings gerados. Sem
