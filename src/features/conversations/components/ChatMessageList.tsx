@@ -194,8 +194,10 @@ function MarkdownContent({ content }: { content: string }) {
           code: ({ children }) => (
             <code className="rounded bg-neutral-100 px-1 py-0.5 font-mono text-xs">{children}</code>
           ),
+          // O react-markdown renderiza bloco de código como <pre><code>; sem o reset,
+          // o estilo do código inline (fundo claro) cobre o texto claro do bloco.
           pre: ({ children }) => (
-            <pre className="overflow-x-auto rounded-lg bg-neutral-900 p-3 text-neutral-100 text-xs">
+            <pre className="overflow-x-auto rounded-lg bg-neutral-900 p-3 text-neutral-100 text-xs [&_code]:rounded-none [&_code]:bg-transparent [&_code]:p-0 [&_code]:text-inherit">
               {children}
             </pre>
           ),
