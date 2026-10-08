@@ -132,6 +132,10 @@ Os mesmos três papéis do backend, refletidos na interface:
 | **CSCoordinator** | Sim | Sim, só dos cursos que coordena | Não | Só dos cursos que coordena |
 | **CSStudent** | Sim | Sim, só do próprio curso | Não | Não |
 
+Estudante enxerga "Materiais" só com título, curso e data: a API omite `file`,
+`uploaded_by_name` e `processing_error` para ele, e o frontend esconde as
+colunas de status, autor e download (a página segue acessível; sem filtro no front).
+
 O contexto RAG do chat respeita o mesmo escopo de materiais que cada papel
 pode ver na API — aluno só “consulta” materiais do próprio curso; coordenador,
 dos cursos que coordena; admin, todos.
@@ -178,9 +182,37 @@ listas, links, tabelas); a mensagem do usuário fica como texto puro.
 sugestões prontas (`GET /api/conversations/suggestions/`) — grade curricular,
 disciplinas e "com o que você pode me ajudar" (perguntas fixas; a resposta vem dos
 materiais). Clicar numa sugestão cria a conversa e envia a mensagem (passada via
-`location.state.initialMessage`, enviada uma única vez). Cada resposta tem
-**👍/👎** (`PATCH .../messages/{id}/feedback/`) e o campo de texto exibe um
-aviso de que a IA pode errar.
+`location.state.initialMessage`, enviada uma única vez). O campo de texto exibe
+um aviso de que a IA pode errar.
+
+**Eventos SSE** (`sendMessage` em `src/api/endpoints/conversations.ts` é um
+gerador de eventos tipados): `meta` (id da mensagem do usuário e rota),
+`status` (etapa + rótulo), `token` (pedaço de texto; evento padrão, sem
+`event:`), `suggestions` (follow-ups), `done` (`message_id` da resposta) e
+`error`. Eventos desconhecidos são ignorados.
+
+**Progresso:** antes do primeiro token, o balão da resposta mostra uma única
+linha com a etapa atual (rótulo vindo do backend, com efeito shimmer que
+respeita `prefers-reduced-motion`; "Pensando…" enquanto nenhum status chegou).
+Um chevron discreto expande a lista de etapas (check nas concluídas, spinner na
+ativa); nunca abre sozinho. Assim que o texto começa a chegar, a área de etapas
+some por completo. Mensagens carregadas do histórico não têm progresso.
+
+**Parar e gerar novamente:** durante a resposta o botão de enviar vira
+**Parar** (aborta o `fetch` via `AbortController`; o texto parcial fica na
+conversa e o servidor também o salva). Se o stream falha no meio, o texto
+parcial é preservado e aparece o erro com **Tentar novamente**. A última
+resposta tem a ação **Gerar novamente** (`regenerate: true` no envio, que
+descarta o último par pergunta/resposta). O stream é abortado ao sair da
+conversa.
+
+**Follow-ups:** depois da última resposta (fora do stream), chips com as
+perguntas sugeridas no evento `suggestions`; clicar envia a pergunta.
+
+**Feedback:** cada resposta tem **👍/👎** (`PATCH .../messages/{id}/feedback/`
+com `{feedback, reason?, comment?}`). Ao marcar 👎 abre um diálogo com o motivo
+(Incorreta, Incompleta, Não entendeu a pergunta, Fora do meu curso, Outro) e
+comentário opcional de até 500 caracteres; dá para pular e ficar só com o 👎.
 
 **Pré-requisitos no backend:** chaves de LLM e embedding configuradas no
 `.env` dele, e materiais com `status=ready` e embeddings gerados. Sem

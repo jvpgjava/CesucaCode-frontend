@@ -1,5 +1,7 @@
+import { RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Button } from '@/shared/ui/Button'
 import { Spinner } from '@/shared/ui/Spinner'
 import { ChatInput } from './components/ChatInput'
 import { ChatMessageList } from './components/ChatMessageList'
@@ -72,7 +74,19 @@ function ChatConversation({ conversationId }: { conversationId: number }) {
   const sentInitial = useRef(false)
 
   const { data: initialMessages, isLoading: loadingMessages } = useMessagesQuery(conversationId)
-  const { messages, streamingText, isStreaming, error, send, setMessages } = useChat(conversationId)
+  const {
+    messages,
+    streamingText,
+    isStreaming,
+    error,
+    steps,
+    suggestions,
+    send,
+    stop,
+    regenerate,
+    retry,
+    setMessages,
+  } = useChat(conversationId)
 
   useEffect(() => {
     if (initialMessages) {
@@ -115,11 +129,26 @@ function ChatConversation({ conversationId }: { conversationId: number }) {
             messages={messages}
             streamingText={streamingText}
             isStreaming={isStreaming}
+            steps={steps}
+            suggestions={suggestions}
+            onRegenerate={regenerate}
+            onPickSuggestion={send}
           />
         </div>
       )}
-      {error && <p className="mx-auto w-full max-w-3xl px-6 pb-2 text-red-600 text-sm">{error}</p>}
-      <ChatInput onSend={send} disabled={isStreaming} />
+      {error && (
+        <div
+          role="alert"
+          className="mx-auto flex w-full max-w-3xl items-center gap-3 px-6 pb-2 text-red-600 text-sm"
+        >
+          <span>{error}</span>
+          <Button variant="secondary" className="px-3 py-1 text-xs" onClick={retry}>
+            <RotateCcw size={12} />
+            Tentar novamente
+          </Button>
+        </div>
+      )}
+      <ChatInput onSend={send} disabled={isStreaming} streaming={isStreaming} onStop={stop} />
     </>
   )
 }

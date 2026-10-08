@@ -134,7 +134,12 @@ interface SseEvent {
   data: string
 }
 
-async function openStream(path: string, body: unknown, isRetry: boolean): Promise<Response> {
+async function openStream(
+  path: string,
+  body: unknown,
+  isRetry: boolean,
+  signal?: AbortSignal,
+): Promise<Response> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   if (accessToken) {
     headers.Authorization = `Bearer ${accessToken}`
@@ -144,6 +149,7 @@ async function openStream(path: string, body: unknown, isRetry: boolean): Promis
     method: 'POST',
     headers,
     body: JSON.stringify(body),
+    signal,
   })
 
   if (response.status === 401 && !isRetry) {
@@ -157,7 +163,7 @@ async function openStream(path: string, body: unknown, isRetry: boolean): Promis
       onUnauthorized?.()
       throw new ApiError(401, null, 'Sessão expirada.')
     }
-    return openStream(path, body, true)
+    return openStream(path, body, true, signal)
   }
 
   if (!response.ok || !response.body) {
@@ -169,8 +175,12 @@ async function openStream(path: string, body: unknown, isRetry: boolean): Promis
 
 // Consome uma resposta Server-Sent Events (text/event-stream) via fetch — a API
 // EventSource nativa só suporta GET com cookies, não POST com Bearer token.
-export async function* streamEvents(path: string, body: unknown): AsyncGenerator<SseEvent> {
-  const response = await openStream(path, body, false)
+export async function* streamEvents(
+  path: string,
+  body: unknown,
+  signal?: AbortSignal,
+): AsyncGenerator<SseEvent> {
+  const response = await openStream(path, body, false, signal)
   if (!response.body) {
     throw new ApiError(response.status, null)
   }
@@ -178,30 +188,35 @@ export async function* streamEvents(path: string, body: unknown): AsyncGenerator
   const decoder = new TextDecoder()
   let buffer = ''
 
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    buffer += decoder.decode(value, { stream: true })
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
 
-    let boundary = buffer.indexOf('\n\n')
-    while (boundary !== -1) {
-      const rawEvent = buffer.slice(0, boundary)
-      buffer = buffer.slice(boundary + 2)
+      let boundary = buffer.indexOf('\n\n')
+      while (boundary !== -1) {
+        const rawEvent = buffer.slice(0, boundary)
+        buffer = buffer.slice(boundary + 2)
 
-      let eventName = 'message'
-      let data = ''
-      for (const line of rawEvent.split('\n')) {
-        if (line.startsWith('event:')) {
-          eventName = line.slice(6).trim()
-        } else if (line.startsWith('data:')) {
-          data += line.slice(5).trim()
+        let eventName = 'message'
+        let data = ''
+        for (const line of rawEvent.split('\n')) {
+          if (line.startsWith('event:')) {
+            eventName = line.slice(6).trim()
+          } else if (line.startsWith('data:')) {
+            data += line.slice(5).trim()
+          }
         }
-      }
-      if (data) {
-        yield { event: eventName, data }
-      }
+        if (data) {
+          yield { event: eventName, data }
+        }
 
-      boundary = buffer.indexOf('\n\n')
+        boundary = buffer.indexOf('\n\n')
+      }
     }
+  } finally {
+    // Libera a conexão se o consumidor sair cedo (stop/unmount).
+    reader.cancel().catch(() => {})
   }
 }

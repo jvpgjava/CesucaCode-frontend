@@ -6,3 +6,52 @@
   --color-brand-orange: #f26a21;
   --color-brand-orange-dark: #d8571a;
 }
+
+/* Efeito "shimmer" sutil no texto da etapa atual da resposta (estilo Claude). */
+@keyframes text-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@keyframes step-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility text-shimmer {
+  color: transparent;
+  background-image: linear-gradient(
+    100deg,
+    var(--color-neutral-500) 35%,
+    var(--color-neutral-900) 50%,
+    var(--color-neutral-500) 65%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: text-shimmer 2s linear infinite;
+}
+
+@utility animate-step-fade-in {
+  animation: step-fade-in 0.3s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-shimmer {
+    animation: none;
+    background-image: none;
+    color: var(--color-neutral-600);
+  }
+
+  .animate-step-fade-in {
+    animation: none;
+  }
+}
