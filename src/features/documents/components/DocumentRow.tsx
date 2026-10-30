@@ -2,6 +2,7 @@ import { Download } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Document } from '@/api/types/documents'
 import { formatDate } from '@/shared/lib/formatDate'
+import { DocumentProcessingStatus, isWaitingForQuota } from './DocumentProcessingStatus'
 import { DocumentStatusBadge } from './DocumentStatusBadge'
 
 export function DocumentRow({
@@ -31,7 +32,8 @@ export function DocumentRow({
       {!isStudentView && (
         <>
           <td className="px-4 py-3 align-middle">
-            <DocumentStatusBadge status={document.status} />
+            <DocumentStatusBadge status={document.status} waiting={isWaitingForQuota(document)} />
+            <DocumentProcessingStatus document={document} compact />
           </td>
           <td className="px-4 py-3 align-middle text-neutral-600">
             {document.uploaded_by_name ?? '—'}
