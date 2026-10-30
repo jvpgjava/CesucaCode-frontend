@@ -10,7 +10,14 @@ const statusConfig: Record<
   failed: { label: 'Falhou', tone: 'danger' },
 }
 
-export function DocumentStatusBadge({ status }: { status: DocumentStatus }) {
+export function DocumentStatusBadge({
+  status,
+  waiting = false,
+}: {
+  status: DocumentStatus
+  /** Processamento pausado esperando o limite de uso do serviço externo. */
+  waiting?: boolean
+}) {
   const config = statusConfig[status]
-  return <Badge tone={config.tone}>{config.label}</Badge>
+  return <Badge tone={config.tone}>{waiting ? 'Aguardando serviço' : config.label}</Badge>
 }

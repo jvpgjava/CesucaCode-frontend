@@ -20,7 +20,7 @@ export function DocumentsListPage() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [uploadOpen, setUploadOpen] = useState(false)
-  const { data, isLoading } = useDocumentsQuery(page)
+  const { data, isLoading, isError } = useDocumentsQuery(page)
 
   // Busca filtra só o que já está carregado (não existe `?search=` nesse
   // endpoint) — por isso volta pra página 1 quando o termo muda, senão o
@@ -56,6 +56,14 @@ export function DocumentsListPage() {
           className="pl-9"
         />
       </div>
+
+      {isError && (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-amber-800 text-sm">
+          {data
+            ? 'Não foi possível atualizar a lista agora. Tentando de novo automaticamente…'
+            : 'Não foi possível carregar os materiais. Verifique sua conexão e recarregue a página.'}
+        </p>
+      )}
 
       {isLoading ? (
         <div className="flex justify-center py-16">

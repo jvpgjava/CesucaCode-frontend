@@ -6,6 +6,7 @@ import { Button } from '@/shared/ui/Button'
 import { Card } from '@/shared/ui/Card'
 import { Dialog, DialogContent } from '@/shared/ui/Dialog'
 import { Spinner } from '@/shared/ui/Spinner'
+import { DocumentProcessingStatus, isWaitingForQuota } from './components/DocumentProcessingStatus'
 import { DocumentStatusBadge } from './components/DocumentStatusBadge'
 import { DocumentChunksPanel } from './DocumentChunksPanel'
 import { DocumentEditDialog } from './DocumentEditDialog'
@@ -22,7 +23,7 @@ export function DocumentDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
 
-  const { data: document, isLoading } = useDocumentQuery(documentId)
+  const { data: document, isLoading, isError } = useDocumentQuery(documentId)
   const deleteMutation = useDeleteDocumentMutation()
   const reprocessMutation = useReprocessDocumentMutation(documentId)
 
@@ -44,7 +45,13 @@ export function DocumentDetailPage() {
   }
 
   if (!document) {
-    return <p className="p-8 text-neutral-500">Material não encontrado.</p>
+    return (
+      <p className="p-8 text-neutral-500">
+        {isError
+          ? 'Não foi possível carregar o material. Verifique sua conexão e recarregue a página.'
+          : 'Material não encontrado.'}
+      </p>
+    )
   }
 
   return (
@@ -59,8 +66,20 @@ export function DocumentDetailPage() {
               : `Enviado em ${formatDate(document.created_at)}`}
           </p>
         </div>
-        <DocumentStatusBadge status={document.status} />
+        <DocumentStatusBadge status={document.status} waiting={isWaitingForQuota(document)} />
       </div>
+
+      {isError && (
+        <Card className="border-amber-200 bg-amber-50 text-amber-800 text-sm">
+          Não foi possível atualizar o status agora. Tentando de novo automaticamente…
+        </Card>
+      )}
+
+      {document.status === 'processing' && (
+        <Card>
+          <DocumentProcessingStatus document={document} />
+        </Card>
+      )}
 
       {document.status === 'failed' && document.processing_error && (
         <Card className="border-red-200 bg-red-50 text-red-700 text-sm">
